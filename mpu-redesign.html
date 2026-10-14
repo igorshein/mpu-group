@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MPU GROUP — Комплексное промышленное снабжение</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            // Pinterest Warm-Light Palette
+            'pin-red': '#e60023',
+            'pin-red-hover': '#cc001f',
+            'pin-red-pressed': '#b2001b',
+            'pin-ink': '#211922',           // Plum Black - primary text
+            'pin-ink-soft': '#666666',      // Fog Gray - secondary text
+            'pin-stone': '#8c8c8c',         // Stone Gray - placeholder/border
+            'pin-linen': '#e5e5e0',         // Linen - secondary surfaces, buttons
+            'pin-linen-hover': '#d4d4cf',
+            'pin-halo': '#fffd92',          // Halo Yellow - emphasis wash
+            'pin-lavender': '#9270d7',      // Lavender Veil - decorative accent
+            'pin-coral': '#fa5f2e',         // Ember Coral - decorative accent
+            'pin-white': '#ffffff',         // Gallery White - canvas, cards
+            'pin-fog': '#f6f6f3',           // Fog - elevated surface
+            'pin-cream': '#fbfbf9',         // Cream - page wash
+            'pin-dark': '#33332e',          // Dark Surface - footer
+            'pin-dark-text': '#91918c',     // Dark surface text
+          },
+          fontFamily: {
+            'display': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            'body': ['Manrope', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          borderRadius: {
+            'pin-sm': '12px',
+            'pin-md': '16px',      // Primary button, input, card radius
+            'pin-lg': '20px',      // Feature cards
+            'pin-xl': '28px',      // Large containers
+            'pin-2xl': '32px',     // Hero containers, modals
+            'pin-3xl': '40px',     // Large feature blocks
+            'pin-full': '9999px',  // Circular buttons, chips
+          },
+          spacing: {
+            'pin-xs': '8px',
+            'pin-sm': '10px',
+            'pin-md': '14px',
+            'pin-lg': '16px',
+            'pin-xl': '24px',
+            'pin-2xl': '32px',
+            'pin-3xl': '48px',
+            'pin-4xl': '64px',
+            'pin-5xl': '80px',
+            'pin-6xl': '96px',
+            'pin-7xl': '120px',
+          },
+          fontSize: {
+            'display-xl': ['70px', { lineHeight: '1.0', letterSpacing: '-1.2px', fontWeight: '700' }],
+            'display-lg': ['56px', { lineHeight: '1.05', letterSpacing: '-1px', fontWeight: '700' }],
+            'display-md': ['44px', { lineHeight: '1.1', letterSpacing: '-0.8px', fontWeight: '700' }],
+            'display-sm': ['36px', { lineHeight: '1.15', letterSpacing: '-0.5px', fontWeight: '700' }],
+            'headline-xl': ['32px', { lineHeight: '1.2', letterSpacing: '0', fontWeight: '700' }],
+            'headline-lg': ['28px', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '700' }],
+            'headline-md': ['24px', { lineHeight: '1.3', letterSpacing: '0', fontWeight: '600' }],
+            'headline-sm': ['20px', { lineHeight: '1.35', letterSpacing: '0', fontWeight: '600' }],
+            'title-lg': ['18px', { lineHeight: '1.4', letterSpacing: '0', fontWeight: '600' }],
+            'title-md': ['16px', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '600' }],
+            'title-sm': ['14px', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '600' }],
+            'body-lg': ['16px', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],
+            'body-md': ['15px', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],
+            'body-sm': ['14px', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '400' }],
+            'caption': ['12px', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '400' }],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #fbfbf9;
+        color: #211922;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      ::selection { background: #e60023; color: #fff; }
+    }
+@layer utilities {
+      .font-display { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      .text-balance { text-wrap: balance; }
+      /* Diagonal clip-paths */
+      .clip-diagonal-tr { clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%); }
+      .clip-diagonal-tl { clip-path: polygon(0 0, 100% 0, 100% 100%, 15% 100%); }
+      .clip-diagonal-br { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 15%); }
+      .clip-diagonal-bl { clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%); }
+      .clip-diagonal-cut { clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%); }
+      .clip-diagonal-cut-rev { clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%); }
+      .clip-chevron-right { clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%); }
+      .clip-chevron-left { clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%); }
+      .clip-hexagon { clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+    }
+    .hero-img { object-fit: cover; border-radius: 32px; transition: transform 0.4s ease; }
+    .hero-img:hover { transform: scale(1.02); }
+    .card-img { object-fit: cover; border-radius: 16px 16px 0 0; transition: transform 0.3s ease; }
+    .group:hover .card-img { transform: scale(1.03); }
+    .btn-primary {
+      background: #e60023;
+      color: #ffffff;
+      border-radius: 16px;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 16px;
+      transition: background 0.15s ease, transform 0.08s ease;
+      border: 2px solid transparent;
+    }
+    .btn-primary:hover { background: #cc001f; }
+    .btn-primary:active { background: #b2001b; transform: scale(0.98); }
+    .btn-secondary {
+      background: #e5e5e0;
+      color: #211922;
+      border-radius: 16px;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 16px;
+      transition: background 0.15s ease, color 0.15s ease;
+      border: 2px solid transparent;
+    }
+    .btn-secondary:hover { background: #d4d4cf; }
+    .btn-ghost {
+      background: transparent;
+      color: #211922;
+      border: 2px solid #211922;
+      border-radius: 16px;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 16px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .btn-ghost:hover { background: #211922; color: #ffffff; }
+    .btn-circle {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #e0e0d9;
+      color: #211922;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s ease, transform 0.08s ease;
+    }
+    .btn-circle:hover { background: #d4d4c9; transform: scale(1.05); }
+    .input-field {
+      background: #ffffff;
+      border: 1px solid #91918c;
+      border-radius: 16px;
+      padding: 11px 15px;
+      color: #211922;
+      font-size: 16px;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .input-field:focus {
+      border-color: #211922;
+      background: #ffffff;
+      outline: none;
+    }
+    .input-field::placeholder { color: #8c8c8c; }
+    .chip {
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .chip-primary { background: #e60023; color: #fff; }
+    .chip-linen { background: #e5e5e0; color: #211922; }
+    .chip-lavender { background: #9270d7; color: #fff; }
+    .chip-coral { background: #fa5f2e; color: #fff; }
+    .chip-halo { background: hsla(60, 20%, 98%, 0.5); color: #211922; }
+    .masonry-grid {
+      column-count: 1;
+      column-gap: 8px;
+    }
+    @media (min-width: 640px) { .masonry-grid { column-count: 2; } }
+    @media (min-width: 1024px) { .masonry-grid { column-count: 3; } }
+    @media (min-width: 1280px) { .masonry-grid { column-count: 4; } }
+    @media (min-width: 1536px) { .masonry-grid { column-count: 5; } }
+    .masonry-item {
+      break-inside: avoid;
+      margin-bottom: 8px;
+    }
+    .tilt-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .tilt-card:hover { transform: rotate(-2deg) translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+    .tilt-card:nth-child(2n) { transform: rotate(1deg); }
+    .tilt-card:nth-child(2n):hover { transform: rotate(1deg) translateY(-4px); }
+    .tilt-card:nth-child(3n) { transform: rotate(-3deg); }
+    .tilt-card:nth-child(3n):hover { transform: rotate(-3deg) translateY(-4px); }
+    /* Diagonal geometric elements */
+    .diagonal-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(227, 30, 36, 0.02) 20px, rgba(227, 30, 36, 0.02) 40px);
+      pointer-events: none;
+    }
+    .diagonal-accent::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #e60023, #fa5f2e, #9270d7);
+      clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+    }
+    .geo-shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .geo-shape-1 { width: 300px; height: 300px; background: #e60023; top: -100px; right: -100px; }
+    .geo-shape-2 { width: 200px; height: 200px; background: #9270d7; bottom: -50px; left: -50px; }
+    .geo-shape-3 { width: 150px; height: 150px; background: #fa5f2e; top: 50%; left: 10%; transform: translateY(-50%); }
+  </style>
+</head>
+<body class="bg-pin-cream text-pin-ink antialiased">
+  <!-- TOP NAV -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-pin-white/80 backdrop-blur-sm border-b border-pin-stone/30" role="navigation" aria-label="Main navigation">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center" aria-label="MPU GROUP home">
+        <img src="logo.png" alt="МПУ ГРУПП" class="h-10 w-auto object-contain" />
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="#" class="btn-ghost text-sm px-4 py-2 hidden sm:block">Вход для партнёров</a>
+        <a href="#" class="btn-primary text-sm px-5 py-2">Рассчитать заявку</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="relative w-full overflow-hidden pt-16 pb-20 lg:pb-28 diagonal-bg" aria-labelledby="hero-title">
+    <!-- Geometric blurred shapes -->
+    <div class="geo-shape geo-shape-1" aria-hidden="true"></div>
+    <div class="geo-shape geo-shape-2" aria-hidden="true"></div>
+    <div class="geo-shape geo-shape-3" aria-hidden="true"></div>
+    <!-- Diagonal gradient accent -->
+    <div class="absolute inset-0 bg-gradient-to-br from-pin-linen/30 via-transparent to-transparent" aria-hidden="true"></div>
+    <!-- Top diagonal accent line -->
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pin-red to-transparent" aria-hidden="true"></div>
+
+    <div class="relative max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+        <!-- Left Column: Content -->
+        <div class="lg:col-span-6 lg:pt-16 flex flex-col relative z-10">
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-pin-linen rounded-full mb-8 w-fit">
+            <span class="w-2 h-2 rounded-full bg-pin-red animate-pulse"></span>
+            <span class="font-display font-semibold text-sm text-pin-ink">Федеральный оператор B2B поставок</span>
+          </div>
+
+          <!-- Main Headline - Pinterest style: 70px, weight 700, tight tracking -->
+          <h1 id="hero-title" class="font-display font-extrabold text-display-xl leading-[1.0] text-pin-ink mb-6 text-balance">
+            Комплексное снабжение <span class="text-pin-red">и логистика</span> по всей России
+          </h1>
+
+          <!-- Subheadline -->
+          <p class="font-body text-body-lg text-pin-ink-soft mb-10 max-w-xl leading-relaxed">
+            Закрываем 100% потребностей промышленных предприятий в металлопрокате, трубах, инженерных сетях и спецтехнике от одного надежного поставщика.
+          </p>
+
+          <!-- CTA Buttons -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-16">
+            <button class="btn-primary w-full sm:w-auto flex items-center justify-center gap-2" type="button">
+              <span>Рассчитать заявку за 15 мин</span>
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+            <button class="btn-secondary w-full sm:w-auto" type="button">
+              Скачать прайс-лист
+            </button>
+          </div>
+
+          <!-- Trust Indicators -->
+          <div class="flex flex-wrap items-center gap-6 text-sm">
+            <div class="flex items-center gap-2 text-pin-ink-soft">
+              <span class="material-symbols-outlined text-pin-red">verified</span>
+              <span>ГОСТ РВ 0015-002 / ISO 9001:2015</span>
+            </div>
+            <div class="flex items-center gap-2 text-pin-ink-soft">
+              <span class="material-symbols-outlined text-pin-red">local_shipping</span>
+              <span>4 хаба: Москва, ЕКБ, Новосибирск, Владивосток</span>
+            </div>
+            <div class="flex items-center gap-2 text-pin-ink-soft">
+              <span class="material-symbols-outlined text-pin-red">inventory_2</span>
+              <span>>15 000 SKU на складах</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Tilted Image Stack (Pinterest signature) -->
+        <div class="lg:col-span-6 relative">
+          <!-- Diagonal separator between columns -->
+          <div class="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 w-1 h-[80%] bg-gradient-to-b from-pin-red via-pin-lavender to-pin-coral clip-diagonal-tr" aria-hidden="true"></div>
+          <div class="relative h-[520px] lg:h-[580px]">
+            <!-- Card 1: Top - Metallurgy warehouse -->
+            <div class="tilt-card absolute top-0 right-4 w-[72%] lg:w-[80%] h-[65%] lg:h-[70%] -rotate-3" style="transform: rotate(-3deg);">
+              <img class="hero-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxbfJtGBX6g5rWH_QiWv5P3r_mTpTrIIUsRoRFz2gwjgu2FV_9OlKVgByE4kVha44nsxq08HX0QMERsuzOyD43tFWAXVfPJGb9hn0IDm7Vtz_aHZN5bHiCINiZyDdydwpnzadH2KkjSE6bNoHuvpgwXENVUAWeC2eBfWo4yy-Zhdev_LBtD2eKB6SX4TxV_skWQnhbuO53Xoj1o31HbAyFD-bfIXt-BnUTW3yj2JSpoAp6QyYm0Syi" alt="Склад металлопроката: стопы труб, балки, листы" loading="eager"/>
+              <div class="absolute -bottom-4 -left-4 bg-pin-lavender text-pin-white px-4 py-2 rounded-full font-display font-semibold text-sm flex items-center gap-2">
+                <span class="material-symbols-outlined">trending_up</span>
+                100% ГОСТ
+              </div>
+            </div>
+
+            <!-- Card 2: Middle - Tubes/Pipes -->
+            <div class="tilt-card absolute top-[20%] left-4 w-[65%] lg:w-[70%] h-[55%] lg:h-[60%] rotate-2" style="transform: rotate(2deg);">
+              <img class="hero-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqbqy9SRuFLDrX-Eawcrve1do7ipic4v_U6XW6vZAmAc_jpsiq_sHFwjus_mYeTQhd43yIFKyjhUfZvxl4fFxNxkM3oTZsfs6l389I3H7Yl0afWhlOrbwN9mtck37vvl25RRGOqyouMgisG6_WYIDcs6CbCgoqw-q_N_dQyFFqCWvZMi1xyXM7DUUyRk_pec9lGIFrK68EvzPFVE8V7oktwbNefWAMSOBC6TIKGLO5dE93P83HvIqh" alt="Трубный прокат на складе" loading="eager"/>
+              <div class="absolute -bottom-3 right-4 bg-pin-coral text-pin-white px-3 py-1.5 rounded-full font-display font-semibold text-xs flex items-center gap-1.5">
+                <span class="material-symbols-outlined">local_shipping</span>
+                Отгрузка день в день
+              </div>
+            </div>
+
+            <!-- Card 3: Bottom - Metal structures -->
+            <div class="tilt-card absolute bottom-0 left-8 w-[60%] lg:w-[65%] h-[50%] lg:h-[55%] -rotate-2" style="transform: rotate(-2deg);">
+              <img class="hero-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2c0coHCJItQE8CW-RyW0GNB778wE5sFrsYmO4N_941yyySKrVFS85gAKqkaNi8dwF9aIlgcxm9JTt3tCJFLDhUeZIKlN47H_Ssbs--iRoQnPVMMK96COUsxtHXZap2EDPeRYnrKw_exW5eLcj0aBw2QPPTO3g_F1I_3slzLLjVGxq6_oJgYGCiR-VGG2wMHdDz9fyeLbCMiMDQYlgGb3dTX0g-EM8nlnoApJBKJkgRpA3Vm2zpyuV" alt="Металлоконструкции производство" loading="lazy"/>
+              <div class="absolute -bottom-3 -left-3 bg-pin-halo text-pin-ink px-3 py-1.5 rounded-full font-display font-semibold text-xs flex items-center gap-1.5">
+                <span class="material-symbols-outlined">factory</span>
+                850 т/мес
+              </div>
+            </div>
+
+            <!-- Floating badge -->
+            <div class="absolute bottom-8 right-8 bg-pin-white/95 backdrop-blur border border-pin-stone/30 rounded-2xl p-5 shadow-xl max-w-xs animate-pulse">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-full bg-pin-red flex items-center justify-center">
+                  <span class="material-symbols-outlined text-pin-white text-xl">check_circle</span>
+                </div>
+                <div>
+                  <div class="font-display font-bold text-sm text-pin-ink">Готовность к отгрузке</div>
+                  <div class="font-body text-xs text-pin-ink-soft">Среднее время: 12 минут</div>
+                </div>
+              </div>
+              <div class="font-display font-extrabold text-3xl text-pin-red">98.7%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUE PROPOSITION: ЕДИНОЕ ОКНО СНАБЖЕНИЯ -->
+  <section class="w-full bg-pin-white py-20 lg:py-28 relative clip-diagonal-bl" aria-labelledby="value-title">
+    <!-- Geometric shapes -->
+    <div class="geo-shape" style="width: 250px; height: 250px; background: #e60023; top: -80px; right: -80px;" aria-hidden="true"></div>
+    <div class="geo-shape" style="width: 180px; height: 180px; background: #9270d7; bottom: -40px; left: -40px;" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-pin-linen/50 via-transparent to-transparent" aria-hidden="true"></div>
+    <!-- Diagonal pattern overlay -->
+    <div class="absolute inset-0 opacity-5" style="background: repeating-linear-gradient(45deg, transparent, transparent 30px, #e60023 30px, #e60023 60px);" aria-hidden="true"></div>
+
+    <div class="relative max-w-7xl mx-auto px-6 lg:px-12">
+      <!-- Section Header -->
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="chip chip-primary font-display text-xs mb-4 inline-block">Стратегия снабжения 360°</span>
+        <h2 id="value-title" class="font-display font-extrabold text-display-md leading-tight text-pin-ink mb-5">
+          Единое окно снабжения вашего предприятия
+        </h2>
+        <p class="font-body text-body-lg text-pin-ink-soft leading-relaxed">
+          Наша цель — безупречный сервис. Опираясь на многолетний опыт и собственные распределительные мощности, мы закрываем 100% номенклатуры клиента.
+        </p>
+      </div>
+
+      <!-- 3 Pillars Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Pillar 1: Договорная база -->
+        <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-8 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300 flex flex-col">
+          <div class="w-14 h-14 bg-pin-linen rounded-xl flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-pin-red text-3xl">description</span>
+          </div>
+          <span class="chip chip-primary font-display text-xs mb-3 inline-block">01. Договорная база</span>
+          <h3 class="font-display font-bold headline-sm text-pin-ink mb-3">1 договор на все группы товаров</h3>
+          <p class="font-body text-body-md text-pin-ink-soft leading-relaxed flex-grow mb-5">
+            Комплектуем спецификацию от листового проката до сложнейшей трубопроводной арматуры и кабеленесущих систем в едином пакете документов.
+          </p>
+          <div class="pt-4 border-t border-pin-stone/20 font-body text-sm text-pin-ink-soft">
+            Упрощённый документооборот (ЭДО)
+          </div>
+        </div>
+
+        <!-- Pillar 2: Экономика закупок -->
+        <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-8 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300 flex flex-col">
+          <div class="w-14 h-14 bg-pin-linen rounded-xl flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-pin-red text-3xl">price_check</span>
+          </div>
+          <span class="chip chip-primary font-display text-xs mb-3 inline-block">02. Экономика закупок</span>
+          <h3 class="font-display font-bold headline-sm text-pin-ink mb-3">Прямые цены заводов</h3>
+          <p class="font-body text-body-md text-pin-ink-soft leading-relaxed flex-grow mb-5">
+            Прямые дилерские соглашения с крупнейшими металлургическими комбинатами гарантируют конкурентные цены без посреднических наценок.
+          </p>
+          <div class="pt-4 border-t border-pin-stone/20 font-body text-sm text-pin-ink-soft">
+            Гибкие финансовые лимиты и отсрочка до 60 дней
+          </div>
+        </div>
+
+        <!-- Pillar 3: Надежность -->
+        <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-8 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300 flex flex-col">
+          <div class="w-14 h-14 bg-pin-linen rounded-xl flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-pin-red text-3xl">verified</span>
+          </div>
+          <span class="chip chip-primary font-display text-xs mb-3 inline-block">03. Надежность</span>
+          <h3 class="font-display font-bold headline-sm text-pin-ink mb-3">Гарантия сроков и ГОСТ</h3>
+          <p class="font-body text-body-md text-pin-ink-soft leading-relaxed flex-grow mb-5">
+            Собственный отдел технического контроля. Каждая партия сопровождается сертификатами качества, паспортами плавок и протоколами УЗК.
+          </p>
+          <div class="pt-4 border-t border-pin-stone/20 font-body text-sm text-pin-ink-soft">
+            100% соответствие ТЗ заказчика
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCT & SERVICE CATALOG - Masonry Grid (Pinterest style) -->
+  <section class="w-full bg-pin-cream py-20 lg:py-28 relative clip-diagonal-tl" aria-labelledby="catalog-title">
+    <!-- Geometric shapes -->
+    <div class="geo-shape" style="width: 280px; height: 280px; background: #9270d7; top: -100px; right: -100px;" aria-hidden="true"></div>
+    <div class="geo-shape" style="width: 200px; height: 200px; background: #fa5f2e; bottom: -60px; left: -60px;" aria-hidden="true"></div>
+    <!-- Diagonal accent line at top -->
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pin-lavender to-transparent" aria-hidden="true"></div>
+
+    <div class="relative max-w-7xl mx-auto px-6 lg:px-12">
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div>
+          <span class="chip chip-primary font-display text-xs mb-3 inline-block">Производственно-складской каталог</span>
+          <h2 id="catalog-title" class="font-display font-extrabold text-display-sm leading-tight text-pin-ink">Номенклатурные направления</h2>
+        </div>
+        <a href="#" class="font-display font-semibold title-md text-pin-red hover:text-pin-red-hover flex items-center gap-1.5 transition-colors self-end">
+          <span>Полный каталог</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+      </div>
+
+      <!-- Masonry Grid -->
+      <div class="masonry-grid">
+        <!-- Card 1: Металлопрокат -->
+        <div class="masonry-item group">
+          <div class="bg-pin-white rounded-2xl overflow-hidden border border-pin-stone/20 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300 relative clip-diagonal-br">
+            <div class="relative aspect-[4/3] overflow-hidden diagonal-accent">
+              <img class="card-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvuvOnGQMfGpf5FVgZ7qb1Qzh9l85eR327rghiiZFxoqMGftPQzB68man5ZPO0eH0CCa1HQFif8OVIA8vLwOEt-Ay9TwmRyFbB8pzEAKpvur0SXw2J6Bpw876rHKDGKgzsBrnn3m79xFL86K9X_NkiGPHbxh_pOr92jiDxExpm_tixSM8GHUs3KchEWoAP_Rgy5Rd35oUMrGeI5xLAisO56c0T8AJl2pkBnAt5Za79h9qXgMHtTzrv" alt="Металлопрокат на складе" loading="lazy"/>
+              <div class="absolute top-3 left-3 chip chip-primary">На складе: 5 400 т</div>
+            </div>
+            <div class="p-5">
+              <span class="chip chip-linen font-display text-xs mb-2 inline-block">01 / Базовое сырье</span>
+              <h3 class="font-display font-bold title-md text-pin-ink mb-2">Металлопрокат</h3>
+              <p class="font-body text-body-sm text-pin-ink-soft mb-4">Чёрный, цветной и нержавеющий прокат, спецстали, листовой и сортовой металл, прецизионные сплавы для тяжелой промышленности.</p>
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                <span class="chip chip-linen text-xs">Лист г/к, х/к</span>
+                <span class="chip chip-linen text-xs">Балка</span>
+                <span class="chip chip-linen text-xs">Круг/Квадрат</span>
+                <span class="chip chip-linen text-xs">AISI / 12Х18Н10Т</span>
+              </div>
+              <a href="#" class="font-display font-semibold title-sm text-pin-ink-soft hover:text-pin-red flex items-center gap-1.5 transition-colors">Смотреть каталог / КП <span class="material-symbols-outlined text-base">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Трубный прокат -->
+        <div class="masonry-item group">
+          <div class="bg-pin-white rounded-2xl overflow-hidden border border-pin-stone/20 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300">
+            <div class="relative aspect-[4/3] overflow-hidden">
+              <img class="card-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqbqy9SRuFLDrX-Eawcrve1do7ipic4v_U6XW6vZAmAc_jpsiq_sHFwjus_mYeTQhd43yIFKyjhUfZvxl4fFxNxkM3oTZsfs6l389I3H7Yl0afWhlOrbwN9mtck37vvl25RRGOqyouMgisG6_WYIDcs6CbCgoqw-q_N_dQyFFqCWvZMi1xyXM7DUUyRk_pec9lGIFrK68EvzPFVE8V7oktwbNefWAMSOBC6TIKGLO5dE93P83HvIqh" alt="Трубный прокат на складе" loading="lazy"/>
+              <div class="absolute top-3 left-3 chip chip-primary">На складе: 3 800 т</div>
+            </div>
+            <div class="p-5">
+              <span class="chip chip-linen font-display text-xs mb-2 inline-block">02 / Магистрали</span>
+              <h3 class="font-display font-bold title-md text-pin-ink mb-2">Трубный прокат и арматура</h3>
+              <p class="font-body text-body-sm text-pin-ink-soft mb-4">Трубы электросварные, бесшовные, котельные высокого давления, отводы, переходы, фланцы и промышленная запорная арматура.</p>
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                <span class="chip chip-linen text-xs">Бесшовные</span>
+                <span class="chip chip-linen text-xs">ППУ / ВУС</span>
+                <span class="chip chip-linen text-xs">Фланцы</span>
+                <span class="chip chip-linen text-xs">Задвижки</span>
+              </div>
+              <a href="#" class="font-display font-semibold title-sm text-pin-ink-soft hover:text-pin-red flex items-center gap-1.5 transition-colors">Смотреть каталог / КП <span class="material-symbols-outlined text-base">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Металлоконструкции -->
+        <div class="masonry-item group">
+          <div class="bg-pin-white rounded-2xl overflow-hidden border border-pin-stone/20 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300">
+            <div class="relative aspect-[4/3] overflow-hidden">
+              <img class="card-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2c0coHCJItQE8CW-RyW0GNB778wE5sFrsYmO4N_941yyySKrVFS85gAKqkaNi8dwF9aIlgcxm9JTt3tCJFLDhUeZIKlN47H_Ssbs--iRoQnPVMMK96COUsxtHXZap2EDPeRYnrKw_exW5eLcj0aBw2QPPTO3g_F1I_3slzLLjVGxq6_oJgYGCiR-VGG2wMHdDz9fyeLbCMiMDQYlgGb3dTX0g-EM8nlnoApJBKJkgRpA3Vm2zpyuV" alt="Металлоконструкции производство" loading="lazy"/>
+              <div class="absolute top-3 left-3 chip chip-primary">Мощность: 850 т/мес</div>
+            </div>
+            <div class="p-5">
+              <span class="chip chip-linen font-display text-xs mb-2 inline-block">03 / Фабрикация</span>
+              <h3 class="font-display font-bold title-md text-pin-ink mb-2">Металлоконструкции</h3>
+              <p class="font-body text-body-sm text-pin-ink-soft mb-4">Изготовление строительных и технологических металлоконструкций, деталей по чертежам КМ/КМД, производство опор трубопроводов.</p>
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                <span class="chip chip-linen text-xs">Опоры ГОСТ</span>
+                <span class="chip chip-linen text-xs">Эстакады</span>
+                <span class="chip chip-linen text-xs">Колонны</span>
+                <span class="chip chip-linen text-xs">Спецдетали</span>
+              </div>
+              <a href="#" class="font-display font-semibold title-sm text-pin-ink-soft hover:text-pin-red flex items-center gap-1.5 transition-colors">Смотреть каталог / КП <span class="material-symbols-outlined text-base">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Инженерные сети -->
+        <div class="masonry-item group">
+          <div class="bg-pin-white rounded-2xl overflow-hidden border border-pin-stone/20 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300">
+            <div class="relative aspect-[4/3] overflow-hidden">
+              <img class="card-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu4Cj_U1lOc-qvTIe4m2juBWNd4TYCxWrEMtAKHm3QE3-mMlI6emMWBM2kWiSaeTxC7kXj_qDiiFaNQJXQKyJs3WsmcUqGjTiFkmhWVcWSByqWsGspF-UMMGBvbzp5F3Zlfdz_2HP_e7sszQ09cFJC-nJVeyFOje_0JIe8OfxgcwSvwL4oZ-aPBKu-CysW7O7Xl_Vgj4pKHYDgrSx5957neUly2oEoNtkDC78oM0t2YEfk9bs4_zOQ" alt="Инженерные сети полимерные трубы" loading="lazy"/>
+              <div class="absolute top-3 left-3 chip chip-primary">Под ключ</div>
+            </div>
+            <div class="p-5">
+              <span class="chip chip-linen font-display text-xs mb-2 inline-block">04 / Коммуникации</span>
+              <h3 class="font-display font-bold title-md text-pin-ink mb-2">Инженерные сети</h3>
+              <p class="font-body text-body-sm text-pin-ink-soft mb-4">Трубы полимерные: ПП, ПНД, ПЭ100 SDR, гибкие предизолированные трубы для теплотрасс, полимерные колодцы и комплектующие.</p>
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                <span class="chip chip-linen text-xs">ПЭ 100 Вода/Газ</span>
+                <span class="chip chip-linen text-xs">Корсис</span>
+                <span class="chip chip-linen text-xs">Колодцы</span>
+                <span class="chip chip-linen text-xs">Фитинги</span>
+              </div>
+              <a href="#" class="font-display font-semibold title-sm text-pin-ink-soft hover:text-pin-red flex items-center gap-1.5 transition-colors">Смотреть каталог / КП <span class="material-symbols-outlined text-base">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5: Промышленное оборудование -->
+        <div class="masonry-item group">
+          <div class="bg-pin-white rounded-2xl overflow-hidden border border-pin-stone/20 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300">
+            <div class="relative aspect-[4/3] overflow-hidden">
+              <img class="card-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzk7RtAPzrhPlMQ0TQfY-lys75k6275z2_k-XOyPZMu196xVn9O9FlbJogkOC9mqHptIKfMHwOg5jYt7g4I3VHNe8Ra2k1OUPscvoMYx_-gi3AQDj00BU3tUjRam7JTxCzng_QP29-OEPWwOugJyizlFEn0OPjwfX70Q9IWe-zOhyzFl31x51heXxrUzsYogqKQpMWJbaTM1WB0oZQ582hN8LM9y6C0AdWv9aFw0rjCfXMbxse9Mpe" alt="Промышленное оборудование" loading="lazy"/>
+              <div class="absolute top-3 left-3 chip chip-primary">Нефтегаз / ГОК</div>
+            </div>
+            <div class="p-5">
+              <span class="chip chip-linen font-display text-xs mb-2 inline-block">05 / Агрегаты</span>
+              <h3 class="font-display font-bold title-md text-pin-ink mb-2">Промышленное оборудование</h3>
+              <p class="font-body text-body-sm text-pin-ink-soft mb-4">Производство и поставка оборудования для предприятий нефтегазового сектора, горно-обогатительных комбинатов, насосные группы и фильтрация.</p>
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                <span class="chip chip-linen text-xs">Насосы B2B</span>
+                <span class="chip chip-linen text-xs">Емкости</span>
+                <span class="chip chip-linen text-xs">Теплообменники</span>
+                <span class="chip chip-linen text-xs">АВО</span>
+              </div>
+              <a href="#" class="font-display font-semibold title-sm text-pin-ink-soft hover:text-pin-red flex items-center gap-1.5 transition-colors">Смотреть каталог / КП <span class="material-symbols-outlined text-base">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: Общепромышленные материалы -->
+        <div class="masonry-item group">
+          <div class="bg-pin-white rounded-2xl overflow-hidden border border-pin-stone/20 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300">
+            <div class="relative aspect-[4/3] overflow-hidden">
+              <img class="card-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlyq8NbQkqfwtnsUbSPujIcYyrHBnPHKlc1BeFXG1lLX8xzolgLU3LWl3_vFXE70WYF7GtVj-abpBPm6Q3Mf5KkP27AZ6qrCwLUHszJjMhM8eUAoT8JT2oUd-ReQd77dj076hg21PnwV3EnOM_ByDrl0uZeiNEnlu7FP5QzZNd2BoUB21lqi2uelnRsFzJmbIdLIAzL-vSexGa7jYzM47lvT1X11KhGH0LHfSIoxOucnPuCpi96CHc" alt="Общепромышленные материалы" loading="lazy"/>
+              <div class="absolute top-3 left-3 chip chip-primary">Комплектация</div>
+            </div>
+            <div class="p-5">
+              <span class="chip chip-linen font-display text-xs mb-2 inline-block">06 / Расходные материалы</span>
+              <h3 class="font-display font-bold title-md text-pin-ink mb-2">Общепромышленные материалы</h3>
+              <p class="font-body text-body-sm text-pin-ink-soft mb-4">Изоляционные материалы (базальт, пенополиуретан), высокопрочные метизы и крепеж (класс 8.8, 10.9), сетка промышленная тканная и плетеная.</p>
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                <span class="chip chip-linen text-xs">Метизы 8.8-12.9</span>
+                <span class="chip chip-linen text-xs">Изоляция</span>
+                <span class="chip chip-linen text-xs">Сетка ГОСТ</span>
+                <span class="chip chip-linen text-xs">Анкерные группы</span>
+              </div>
+              <a href="#" class="font-display font-semibold title-sm text-pin-ink-soft hover:text-pin-red flex items-center gap-1.5 transition-colors">Смотреть каталог / КП <span class="material-symbols-outlined text-base">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 7: Строительные материалы -->
+        <div class="masonry-item group">
+          <div class="bg-pin-white rounded-2xl overflow-hidden border border-pin-stone/20 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300">
+            <div class="relative aspect-[4/3] overflow-hidden">
+              <img class="card-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALzLzppgRo1SMuuBM1MH1gfnJpNkOTDPr1zHzo-IKYwqCWXolzDiLTnqwYuEikt1-itwLSmBiThAeEAnzgh59Zq4dHG9lOn9lKI9bIC64MVR2Ty-cIMmPe6gL5vnrudOJE168kIH5Z38xvPQu8SELSa_0uv0UGLawIVdSvTCxN6Tc1LfESJLDmk0tfd9lUMIwx1mmSeGCfSDhsLh-pHM_wP0qZPLe6KaiMcAqAyxzb5J2u0BZ4LT1R" alt="Строительные материалы" loading="lazy"/>
+              <div class="absolute top-3 left-3 chip chip-primary">Любые цвета RAL</div>
+            </div>
+            <div class="p-5">
+              <span class="chip chip-linen font-display text-xs mb-2 inline-block">07 / Строительный сектор</span>
+              <h3 class="font-display font-bold title-md text-pin-ink mb-2">Строительные материалы</h3>
+              <p class="font-body text-body-sm text-pin-ink-soft mb-4">Профнастил несущий и стеновой, фасадные и кровельные системы, рулонная оцинкованная сталь с полимерным защитным покрытием по каталогу RAL.</p>
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                <span class="chip chip-linen text-xs">Н-60 / Н-75 / Н-114</span>
+                <span class="chip chip-linen text-xs">Рулонная сталь</span>
+                <span class="chip chip-linen text-xs">Сэндвич-панели</span>
+              </div>
+              <a href="#" class="font-display font-semibold title-sm text-pin-ink-soft hover:text-pin-red flex items-center gap-1.5 transition-colors">Смотреть каталог / КП <span class="material-symbols-outlined text-base">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 8: Услуги металлообработки -->
+        <div class="masonry-item group">
+          <div class="bg-pin-white rounded-2xl overflow-hidden border border-pin-stone/20 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300">
+            <div class="relative aspect-[4/3] overflow-hidden">
+              <img class="card-img w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQPOdmH1ASYqlpTUKVUbfr4tqhE-bSl3LnVSD_0I8MqBYfy3jICRIGewhvyErCjx1OikhkwQUuO45yVoI8lIp3ubJLB7QpTNRYXRXlbhyjDRRhUv-I7UIgsdYmNE2gPoSMbkN8yFmrGx8Wopg98JmkMYWZypp-9Wl75uCr9VXI7DY4YmV8yZvLWiIjoZqgs-8zzSRrf_7nodiWjPnhtfiU0PYOM23Wuab9UJZpAIQfJP3P64zrwber" alt="Услуги металлообработки" loading="lazy"/>
+              <div class="absolute top-3 left-3 chip chip-primary">ЧПУ парк 2024</div>
+            </div>
+            <div class="p-5">
+              <span class="chip chip-linen font-display text-xs mb-2 inline-block">08 / Сервис обработки</span>
+              <h3 class="font-display font-bold title-md text-pin-ink mb-2">Услуги металлообработки</h3>
+              <p class="font-body text-body-sm text-pin-ink-soft mb-4">Лазерная и плазменная резка, гибка, вальцовка, горячее цинкование, термообработка и точная механическая обработка деталей по чертежам.</p>
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                <span class="chip chip-linen text-xs">Лазер до 30 мм</span>
+                <span class="chip chip-linen text-xs">Гибка ЧПУ</span>
+                <span class="chip chip-linen text-xs">Цинкование</span>
+                <span class="chip chip-linen text-xs">Фрезеровка</span>
+              </div>
+              <a href="#" class="font-display font-semibold title-sm text-pin-ink-soft hover:text-pin-red flex items-center gap-1.5 transition-colors">Смотреть каталог / КП <span class="material-symbols-outlined text-base">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGISTICS & DISTRIBUTION NETWORK -->
+  <section class="w-full bg-pin-white py-20 lg:py-28 relative clip-diagonal-br" aria-labelledby="logistics-title">
+    <!-- Geometric shapes -->
+    <div class="geo-shape" style="width: 300px; height: 300px; background: #e60023; top: -100px; left: -100px;" aria-hidden="true"></div>
+    <div class="geo-shape" style="width: 220px; height: 220px; background: #9270d7; bottom: -60px; right: -60px;" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-pin-linen/50 via-transparent to-transparent" aria-hidden="true"></div>
+    <!-- Diagonal pattern -->
+    <div class="absolute inset-0 opacity-3" style="background: repeating-linear-gradient(-45deg, transparent, transparent 40px, #e60023 40px, #e60023 80px);" aria-hidden="true"></div>
+
+    <div class="relative max-w-7xl mx-auto px-6 lg:px-12">
+      <!-- Section Header -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start mb-16">
+        <div class="lg:col-span-7">
+          <span class="chip chip-primary font-display text-xs mb-4 inline-block">География и логистика</span>
+          <h2 id="logistics-title" class="font-display font-extrabold text-display-sm leading-tight text-pin-ink mb-5">
+            Собственная распределительная сеть по всей РФ
+          </h2>
+          <p class="font-body text-body-lg text-pin-ink-soft leading-relaxed">
+            Склады постоянного наличия и прямые маршруты доставки, включая бесперебойные поставки в труднодоступные регионы Крайнего Севера и месторождения.
+          </p>
+        </div>
+        <div class="lg:col-span-5 bg-pin-linen rounded-2xl p-6 flex flex-col justify-center border border-pin-stone/20">
+          <span class="chip chip-primary font-display text-xs mb-3 inline-block">Федеральный контроль сроков</span>
+          <p class="font-body text-body-sm text-pin-ink-soft leading-relaxed">
+            Собственный парк длинномеров, прямые договоры с ОАО «РЖД» и портами Северного морского пути гарантируют прибытие грузов строго по графику с полным страховым покрытием.
+          </p>
+        </div>
+      </div>
+
+      <!-- Hubs & Map Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <!-- Hubs List -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-5 hover:border-pin-red/30 hover:shadow-lg transition-all duration-300 flex items-center gap-4">
+            <span class="w-12 h-12 rounded-xl bg-pin-red flex items-center justify-center font-display font-bold text-lg text-pin-white flex-shrink-0">01</span>
+            <div class="flex-grow">
+              <h4 class="font-display font-bold title-sm text-pin-ink">Москва (Центральный хаб)</h4>
+              <p class="font-body text-sm text-pin-ink-soft mt-0.5">1-й Красногвардейский пр-д · 25 000 м² крытых площадей</p>
+            </div>
+            <span class="material-symbols-outlined text-pin-ink-soft">arrow_forward_ios</span>
+          </div>
+          <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-5 hover:border-pin-red/30 hover:shadow-lg transition-all duration-300 flex items-center gap-4">
+            <span class="w-12 h-12 rounded-xl bg-pin-linen flex items-center justify-center font-display font-bold text-lg text-pin-ink flex-shrink-0">02</span>
+            <div class="flex-grow">
+              <h4 class="font-display font-bold title-sm text-pin-ink">Екатеринбург (Уральский хаб)</h4>
+              <p class="font-body text-sm text-pin-ink-soft mt-0.5">ул. Мамина-Сибиряка · Прямой доступ к заводам Урала</p>
+            </div>
+            <span class="material-symbols-outlined text-pin-ink-soft">arrow_forward_ios</span>
+          </div>
+          <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-5 hover:border-pin-red/30 hover:shadow-lg transition-all duration-300 flex items-center gap-4">
+            <span class="w-12 h-12 rounded-xl bg-pin-linen flex items-center justify-center font-display font-bold text-lg text-pin-ink flex-shrink-0">03</span>
+            <div class="flex-grow">
+              <h4 class="font-display font-bold title-sm text-pin-ink">Новосибирск (Сибирский хаб)</h4>
+              <p class="font-body text-sm text-pin-ink-soft mt-0.5">ул. Станционная · Транзитный узел поставок в СФО</p>
+            </div>
+            <span class="material-symbols-outlined text-pin-ink-soft">arrow_forward_ios</span>
+          </div>
+          <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-5 hover:border-pin-red/30 hover:shadow-lg transition-all duration-300 flex items-center gap-4">
+            <span class="w-12 h-12 rounded-xl bg-pin-linen flex items-center justify-center font-display font-bold text-lg text-pin-ink flex-shrink-0">04</span>
+            <div class="flex-grow">
+              <h4 class="font-display font-bold title-sm text-pin-ink">Владивосток (Дальневосточный хаб)</h4>
+              <p class="font-body text-sm text-pin-ink-soft mt-0.5">ул. Посьетская · Портовая перевалка и таможенный терминал</p>
+            </div>
+            <span class="material-symbols-outlined text-pin-ink-soft">arrow_forward_ios</span>
+          </div>
+        </div>
+
+        <!-- Map Visualization -->
+        <div class="lg:col-span-7 bg-pin-white border border-pin-stone/20 rounded-2xl p-6 lg:p-8 relative flex flex-col justify-between overflow-hidden">
+          <div class="relative w-full h-64 lg:h-80 flex items-center justify-center">
+            <svg class="w-full h-full text-pin-stone/40" fill="none" viewBox="0 0 700 320" aria-hidden="true">
+              <!-- Route lines -->
+              <path d="M 120 180 Q 240 120 300 160 T 450 170 T 620 190" stroke="currentColor" stroke-dasharray="4 4" stroke-width="2"/>
+              <path d="M 300 160 Q 360 80 430 70" stroke="#e60023" stroke-dasharray="6 3" stroke-width="2.5"/>
+              <path d="M 450 170 Q 520 90 580 80" stroke="#e60023" stroke-dasharray="6 3" stroke-width="2.5"/>
+              <!-- Moscow -->
+              <circle cx="120" cy="180" fill="#e60023" r="9"/>
+              <circle class="animate-ping opacity-75" cx="120" cy="180" r="18" stroke="#e60023" stroke-width="2"/>
+              <text fill="#211922" font-family="Inter" font-size="13" font-weight="700" text-anchor="middle" x="120" y="215">МОСКВА</text>
+              <!-- Ekaterinburg -->
+              <circle cx="300" cy="160" fill="#211922" r="8"/>
+              <text fill="#211922" font-family="Inter" font-size="13" font-weight="700" text-anchor="middle" x="300" y="195">ЕКАТЕРИНБУРГ</text>
+              <!-- Novosibirsk -->
+              <circle cx="450" cy="170" fill="#211922" r="8"/>
+              <text fill="#211922" font-family="Inter" font-size="13" font-weight="700" text-anchor="middle" x="450" y="205">НОВОСИБИРСК</text>
+              <!-- Vladivostok -->
+              <circle cx="620" cy="190" fill="#211922" r="8"/>
+              <text fill="#211922" font-family="Inter" font-size="13" font-weight="700" text-anchor="middle" x="620" y="225">ВЛАДИВОСТОК</text>
+              <!-- Northern points -->
+              <circle cx="430" cy="70" fill="#e60023" r="7"/>
+              <text fill="#e60023" font-family="Inter" font-size="11" font-weight="700" text-anchor="middle" x="430" y="55">ЯМАЛ / САБЕТТА</text>
+              <circle cx="580" cy="80" fill="#e60023" r="7"/>
+              <text fill="#e60023" font-family="Inter" font-size="11" font-weight="700" text-anchor="middle" x="580" y="65">ЯКУТИЯ / ЛЕНСК</text>
+            </svg>
+          </div>
+
+          <!-- Northern Logistics Highlight -->
+          <div class="mt-6 p-6 bg-pin-red text-pin-white rounded-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-pin-white/10 rounded-full blur-2xl -translate-x-1/2 translate-y-1/2" aria-hidden="true"></div>
+            <div class="relative flex items-start gap-4">
+              <span class="material-symbols-outlined text-4xl">ac_unit</span>
+              <div>
+                <h4 class="font-display font-bold headline-sm text-pin-white mb-1">
+                  Экспертиза: логистика в регионы Крайнего Севера
+                </h4>
+                <p class="font-body text-body-sm text-pin-halo leading-relaxed">
+                  Организуем доставку сборных и проектных партий по автозимникам, в период речной навигации по рекам Обь, Иртыш, Лена, Енисей, а также мультимодальные авиа и ж/д спецрейсы на Ямал, Таймыр, в Якутию и на Чукотку.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTION & QUALITY ASSURANCE / ОТК -->
+  <section class="w-full bg-pin-cream py-20 lg:py-28 relative clip-diagonal-bl" aria-labelledby="quality-title">
+    <!-- Geometric shapes -->
+    <div class="geo-shape" style="width: 260px; height: 260px; background: #fa5f2e; top: -80px; right: -80px;" aria-hidden="true"></div>
+    <div class="geo-shape" style="width: 180px; height: 180px; background: #e60023; bottom: -50px; left: -50px;" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-pin-linen/50 via-transparent to-transparent" aria-hidden="true"></div>
+
+    <div class="relative max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        <!-- Left: Quality Steps -->
+        <div class="lg:col-span-6">
+          <span class="chip chip-primary font-display text-xs mb-4 inline-block">Надёжность поставщика</span>
+          <h2 id="quality-title" class="font-display font-extrabold text-display-sm leading-tight text-pin-ink mb-6">
+            Многоступенчатый контроль качества и аттестация ОТК
+          </h2>
+          <p class="font-body text-body-lg text-pin-ink-soft leading-relaxed mb-10">
+            Каждая партия металлопроката, труб или технологического оборудования проходит обязательную верификацию собственной службой технического контроля (ОТК) до момента отправки заказчику.
+          </p>
+          <div class="space-y-4">
+            <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-6 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300 flex items-start gap-5">
+              <div class="w-12 h-12 bg-pin-red flex items-center justify-center rounded-xl flex-shrink-0">
+                <span class="material-symbols-outlined text-pin-white text-2xl">biotech</span>
+              </div>
+              <div>
+                <h4 class="font-display font-bold title-sm text-pin-ink mb-1">Ультразвуковой и входной спектральный контроль</h4>
+                <p class="font-body text-body-sm text-pin-ink-soft">
+                  Проверка химического состава стали портативными спектрометрами и выявление внутренних дефектов методом неразрушающего УЗК контроля.
+                </p>
+              </div>
+            </div>
+            <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-6 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300 flex items-start gap-5">
+              <div class="w-12 h-12 bg-pin-red flex items-center justify-center rounded-xl flex-shrink-0">
+                <span class="material-symbols-outlined text-pin-white text-2xl">fact_check</span>
+              </div>
+              <div>
+                <h4 class="font-display font-bold title-sm text-pin-ink mb-1">Полный пакет разрешительной документации</h4>
+                <p class="font-body text-body-sm text-pin-ink-soft">
+                  Паспорта качества производителей, сертификаты соответствия ТР ТС, акты гидроиспытаний и заключения независимых лабораторий.
+                </p>
+              </div>
+            </div>
+            <div class="bg-pin-white border border-pin-stone/20 rounded-2xl p-6 hover:border-pin-red/30 hover:shadow-xl transition-all duration-300 flex items-start gap-5">
+              <div class="w-12 h-12 bg-pin-red flex items-center justify-center rounded-xl flex-shrink-0">
+                <span class="material-symbols-outlined text-pin-white text-2xl">security</span>
+              </div>
+              <div>
+                <h4 class="font-display font-bold title-sm text-pin-ink mb-1">Сертификация ГОСТ РВ 0015-002 и ISO 9001:2015</h4>
+                <p class="font-body text-body-sm text-pin-ink-soft">
+                  Внедренная система менеджмента качества позволяет обеспечивать поставки для стратегических и опасных производственных объектов.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Lab Image with Floating Badge -->
+        <div class="lg:col-span-6 relative">
+          <div class="relative bg-pin-white rounded-3xl overflow-hidden shadow-2xl border border-pin-stone/20">
+            <img class="w-full h-[460px] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZlKeYQ3Fui6dR7vyJLemBGVemq3Ba2N5sfICK0Z9g_vxhkUFPtH2eS0JxcG4x4JB6mlURDB2ld54NIEmA29min757c1tOkbScOIzPQ6oo8XjyuvtAhszQWgIaXNKW6e7aiwY3b21h4mcvLuibRwVnAv7fD-ZSAyZlZPMS9CogqdLX_qu9EE4CoouXnJxoD-RZtIqyuXNN_wiiGYxSX03OF5mQhxMOM8Gm8pppG9XmciUtMYyObd1U" alt="Лаборатория ОТК: ультразвуковой контроль сварных швов" loading="lazy"/>
+            <!-- Floating Badge -->
+            <div class="absolute bottom-8 left-8 bg-pin-white/95 backdrop-blur border border-pin-stone/20 rounded-2xl p-6 shadow-xl max-w-xs">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-3 h-3 bg-pin-red rounded-full"></span>
+                <span class="font-display font-semibold text-xs text-pin-red uppercase tracking-wider">Гарантия МПУ ГРУПП</span>
+              </div>
+              <div class="font-display font-extrabold text-3xl text-pin-red mb-1">0% Брака</div>
+              <p class="font-body text-body-sm text-pin-ink-soft">
+                Замена любой единицы товара или компенсация за наш счёт при малейшем расхождении с паспортом качества.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TENDER DEPARTMENT & FAST ACTION CALLOUT -->
+  <section class="w-full bg-pin-linen py-20 lg:py-28 relative clip-diagonal-tl" aria-labelledby="tender-title">
+    <!-- Geometric shapes -->
+    <div class="geo-shape" style="width: 320px; height: 320px; background: #e60023; top: -120px; left: -120px;" aria-hidden="true"></div>
+    <div class="geo-shape" style="width: 240px; height: 240px; background: #9270d7; bottom: -80px; right: -80px;" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-pin-red/5 via-transparent to-transparent" aria-hidden="true"></div>
+    <!-- Diagonal accent lines -->
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pin-red to-transparent" aria-hidden="true"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pin-lavender to-transparent" aria-hidden="true"></div>
+
+    <div class="relative max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="bg-pin-white rounded-3xl p-8 lg:p-14 border border-pin-stone/20 relative overflow-hidden clip-diagonal-cut-rev">
+        <!-- Accent corner -->
+        <div class="absolute top-0 right-0 w-48 h-48 bg-pin-red rounded-bl-3xl opacity-10" aria-hidden="true"></div>
+
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          <!-- Left Content -->
+          <div class="lg:col-span-7">
+            <div class="flex items-center gap-3 mb-5">
+              <span class="chip chip-primary font-display text-xs">Тендерный отдел</span>
+              <span class="font-body text-sm text-pin-ink-soft">223-ФЗ / 44-ФЗ / Коммерческие закупки</span>
+            </div>
+            <h2 id="tender-title" class="font-display font-extrabold text-display-sm leading-tight text-pin-ink mb-6">
+              Присылайте заявки <span class="text-pin-red">и спецификации</span>
+            </h2>
+            <p class="font-body text-body-lg text-pin-ink-soft leading-relaxed mb-10 max-w-xl">
+              Предоставим детальное коммерческое предложение с фиксированными ценами, условиями отсрочки платежа и точным графиком доставки в течение рабочего дня.
+            </p>
+            <div class="flex flex-wrap items-center gap-6 mb-8">
+              <div class="flex flex-col">
+                <span class="font-display font-semibold text-xs text-pin-ink-soft uppercase tracking-wider mb-1">Горячая линия снабжения:</span>
+                <a href="tel:88005502430" class="font-display font-extrabold text-2xl lg:text-3xl text-pin-ink hover:text-pin-red transition-colors">8 (800) 550-24-30</a>
+              </div>
+              <div class="w-px h-10 bg-pin-stone/30 hidden lg:block"></div>
+              <div class="flex flex-col">
+                <span class="font-display font-semibold text-xs text-pin-ink-soft uppercase tracking-wider mb-1">Прием ТЗ и чертежей:</span>
+                <a href="mailto:info@mpu-group.ru" class="font-display font-semibold title-lg text-pin-red hover:text-pin-red-hover transition-colors">info@mpu-group.ru</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Benefits & Actions -->
+          <div class="lg:col-span-5 bg-pin-cream rounded-2xl p-8 border border-pin-stone/20 flex flex-col gap-6">
+            <h3 class="font-display font-bold headline-sm text-pin-ink">
+              Условия партнерства
+            </h3>
+            <div class="space-y-3">
+              <div class="flex items-start gap-3 font-body text-body-sm text-pin-ink-soft">
+                <span class="material-symbols-outlined text-pin-red flex-shrink-0 mt-0.5">check_circle</span>
+                <span>Отсрочка платежа до 60 календарных дней</span>
+              </div>
+              <div class="flex items-start gap-3 font-body text-body-sm text-pin-ink-soft">
+                <span class="material-symbols-outlined text-pin-red flex-shrink-0 mt-0.5">check_circle</span>
+                <span>Бронирование металлопроката на складе до 30 дней</span>
+              </div>
+              <div class="flex items-start gap-3 font-body text-body-sm text-pin-ink-soft">
+                <span class="material-symbols-outlined text-pin-red flex-shrink-0 mt-0.5">check_circle</span>
+                <span>Персональный инженер проекта и логист 24/7</span>
+              </div>
+            </div>
+            <div class="pt-4 flex flex-col sm:flex-row gap-3">
+              <a href="#" class="btn-primary w-full sm:w-auto text-center flex items-center justify-center gap-2">
+                Отправить спецификацию
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </a>
+              <a href="#" class="btn-secondary w-full sm:w-auto text-center flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">download</span>
+                <span>Прайс-лист</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="w-full bg-pin-dark text-pin-dark-text border-t border-pin-stone/20 relative clip-diagonal-tl">
+    <!-- Geometric shapes in footer -->
+    <div class="geo-shape" style="width: 300px; height: 300px; background: #e60023; top: -100px; right: -100px; opacity: 0.08;" aria-hidden="true"></div>
+    <div class="geo-shape" style="width: 200px; height: 200px; background: #9270d7; bottom: -50px; left: -50px; opacity: 0.08;" aria-hidden="true"></div>
+    <!-- Top diagonal accent -->
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pin-red to-transparent" aria-hidden="true"></div>
+
+    <div class="bg-pin-dark/50 py-8 border-b border-pin-stone/20 relative z-10">
+      <div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex flex-col gap-1">
+          <span class="font-display font-semibold title-sm text-pin-red">Тендерная подписка и сводки наличия на складах</span>
+          <span class="font-body text-sm text-pin-stone">Еженедельная выгрузка складских остатков металлопроката и сырья</span>
+        </div>
+        <form class="flex w-full md:w-auto items-center gap-2" onsubmit="return false;">
+          <input type="email" class="input-field px-4 py-2.5 font-body text-sm w-full sm:w-80 bg-pin-white" placeholder="Корпоративный e-mail"/>
+          <button type="submit" class="btn-primary font-display font-semibold text-sm px-6 py-2.5 whitespace-nowrap">
+            Подписаться
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 py-16">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-2">
+            <span class="font-display font-extrabold text-xl text-pin-white">МПУ</span>
+            <span class="font-display font-extrabold text-xl text-pin-red">ГРУПП</span>
+          </div>
+          <p class="font-body text-sm text-pin-stone leading-relaxed">
+            Федеральный B2B оператор поставок промышленной металлопродукции, трубопроводной арматуры, полимеров и горнорудного оборудования по всей России.
+          </p>
+          <div class="flex items-center gap-3 pt-2">
+            <div class="bg-pin-stone/20 px-2.5 py-1 text-xs font-display font-semibold text-pin-stone rounded-lg">ГОСТ РВ 0015-002</div>
+            <div class="bg-pin-stone/20 px-2.5 py-1 text-xs font-display font-semibold text-pin-stone rounded-lg">ISO 9001:2015</div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-3">
+          <span class="font-display font-semibold text-sm text-pin-stone uppercase tracking-wider">Направления</span>
+          <nav class="flex flex-col gap-2">
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Металлопрокат</a>
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Трубная продукция</a>
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Металлоконструкции</a>
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Инженерные сети</a>
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Промоборудование</a>
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Металлообработка</a>
+          </nav>
+        </div>
+        <div class="flex flex-col gap-3">
+          <span class="font-display font-semibold text-sm text-pin-stone uppercase tracking-wider">Логистика</span>
+          <nav class="flex flex-col gap-2">
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Склад Москва</a>
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Склад Екатеринбург</a>
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Склад Новосибирск</a>
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Склад Владивосток</a>
+            <a class="font-body text-sm text-pin-dark-text hover:text-pin-red transition-colors" href="#">Северный завоз</a>
+          </nav>
+        </div>
+        <div class="flex flex-col gap-3">
+          <span class="font-display font-semibold text-sm text-pin-stone uppercase tracking-wider">Контакты</span>
+          <address class="font-body text-sm text-pin-dark-text not-italic leading-relaxed space-y-2">
+            <div><a href="tel:88005502430" class="hover:text-pin-red transition-colors">8 (800) 550-24-30</a></div>
+            <div><a class="hover:text-pin-red transition-colors" href="mailto:info@mpu-group.ru">info@mpu-group.ru</a></div>
+            <div class="pt-2">Москва, 1-й Красногвардейский пр-д, 12</div>
+          </address>
+        </div>
+      </div>
+      <div class="mt-12 pt-8 border-t border-pin-stone/20 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="font-body text-xs text-pin-stone/70">© 2024 МПУ ГРУПП. Все права защищены.</p>
+        <div class="flex items-center gap-6">
+          <a class="font-body text-xs text-pin-stone/70 hover:text-pin-red transition-colors" href="#">Политика конфиденциальности</a>
+          <a class="font-body text-xs text-pin-stone/70 hover:text-pin-red transition-colors" href="#">Условия использования</a>
+          <a class="font-body text-xs text-pin-stone/70 hover:text-pin-red transition-colors" href="#">Реквизиты</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
