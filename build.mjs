@@ -11,6 +11,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+import crypto from 'crypto';
 import { points, routes, MAP_VIEWBOX } from './src/data/map.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -71,7 +72,7 @@ const dataScript = `<script type="application/json" id="hub-data">${JSON.stringi
 html = html.replace('</body>', `${dataScript}\n</body>`);
 
 fs.mkdirSync(path.join(OUT, 'assets/css'), {recursive: true});
-fs.writeFileSync(path.join(OUT, 'index.html'), html, 'utf8');
+// версии считаются после сборки CSS — см. финальный шаг
 console.log(`✓ docs/index.html — ${(html.length / 1024).toFixed(1)} КБ, точек карты: ${points.length}, маршрутов: ${routes.length}`);
 
 /* --------------------------------------------- 4. копирование статики */
@@ -84,6 +85,18 @@ copy(path.join(SRC, 'assets/fonts'), path.join(OUT, 'assets/fonts'));
 copy(path.join(SRC, 'assets/img'), path.join(OUT, 'assets/img'));
 copy(path.join(SRC, 'assets/js'), path.join(OUT, 'assets/js'));
 console.log('✓ статика (шрифты, картинки, скрипты) на месте');
+
+/* ------------------------------- 4a. cache-busting: версия ассетов в URL */
+/* CDN GitHub Pages кэширует файлы надолго — без смены query параметра
+   браузер продолжит отдавать старый CSS/JS. Добавляем хеш содержимого. */
+function versionOf(file) {
+  const buf = fs.readFileSync(file);
+  return crypto.createHash('md5').update(buf).digest('hex').slice(0, 8);
+}
+const cssFile = path.join(OUT, 'assets/css/site.css');
+const jsFile = path.join(OUT, 'assets/js/site.js');
+const cssV = fs.existsSync(cssFile) ? versionOf(cssFile) : 'dev';
+const jsV = fs.existsSync(jsFile) ? versionOf(jsFile) : 'dev';
 
 /* --------------------------------------------- 4b. robots.txt (временный хостинг) */
 // На GitHub Pages сайт не должен индексироваться (основной домен — mpu-group.ru).
@@ -100,4 +113,21 @@ try {
 } catch (e) {
   console.error('✗ не удалось собрать CSS (запустите npm install)', e.message);
   process.exitCode = 1;
+}
+
+/* --------------------- 6. cache-busting: проставляем версии в собранный HTML */
+try {
+  const cssFile = path.join(OUT, 'assets/css/site.css');
+  const jsFile = path.join(OUT, 'assets/js/site.js');
+  const hash = f => crypto.createHash('md5').update(fs.readFileSync(f)).digest('hex').slice(0, 8);
+  const cssV = fs.existsSync(cssFile) ? hash(cssFile) : 'dev';
+  const jsV = fs.existsSync(jsFile) ? hash(jsFile) : 'dev';
+  const idx = path.join(OUT, 'index.html');
+  let out = fs.readFileSync(idx, 'utf8');
+  out = out.replace(/href="assets\/css\/site\.css(\?v=[a-z0-9]+)?"/, 'href="assets/css/site.css?v=' + cssV + '"');
+  out = out.replace(/src="assets\/js\/site\.js(\?v=[a-z0-9]+)?"/, 'src="assets/js/site.js?v=' + jsV + '"');
+  fs.writeFileSync(idx, out, 'utf8');
+  console.log('✓ cache-busting: css?v=' + cssV + ' js?v=' + jsV);
+} catch (e) {
+  console.warn('cache-busting пропущен:', e.message);
 }
