@@ -1,0 +1,103 @@
+/**
+ * Сборщик сайта MPU GROUP
+ *  1. Генерирует SVG карты логистики из src/data/map.js (единый источник данных)
+ *  2. Подставляет SVG и JSON-данные в шаблон src/index.html
+ *  3. Собирает CSS через Tailwind CLI
+ *  4. Копирует статику (шрифты/картинки) в docs/
+ *
+ * Запуск: npm run build
+ */
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
+import { points, routes, MAP_VIEWBOX } from './src/data/map.mjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const SRC = path.join(__dirname, 'src');
+const OUT = path.join(__dirname, 'docs');
+
+const HUBS = ['moscow', 'ekaterinburg', 'novosibirsk', 'vladivostok'];
+const isRegion = p => p.kind !== 'hub';
+
+/* ---------------------------------------------- 1. генерация SVG карты */
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const routeMarkup = routes.map(r => {
+  const stroke = r.red ? '#E31E24' : 'currentColor';
+  const dash = r.red ? '6 3' : '4 4';
+  const width = r.red ? 1.8 : 2;
+  const marker = r.arrow ? ' marker-end="url(#mpu-arrow)"' : '';
+  const region = r.id === 'main-route' ? '' : ' is-region';
+  return `      <path d="${r.d}" stroke="${stroke}" stroke-dasharray="${dash}" stroke-width="${width}" opacity="0.35"${marker} data-route="${r.id}" id="${r.id}" class="hub-route${region}"></path>`;
+}).join('\n');
+
+const pointMarkup = points.map(p => {
+  const active = p.id === 'moscow' ? ' active' : '';
+  const region = isRegion(p) ? ' is-region' : '';
+  const halo = p.fontSize <= 9 ? ' stroke="#2E3132" stroke-width="2.4" paint-order="stroke"' : '';
+  const anchor = p.id === 'vladivostok' ? ' hub-label--end' : '';
+  return `      <g class="hub-point${active}${region}" data-hub="${p.id}" style="cursor: pointer;">
+        <circle class="hub-pulse" cx="${p.x}" cy="${p.y}" r="${p.r + 7}" fill="none" stroke="#E31E24" stroke-width="1.2" opacity="0" style="display:none"></circle>
+        <circle cx="${p.x}" cy="${p.y}" fill="${p.fill}" r="${p.r}" class="hub-circle"></circle>
+        <text fill="${p.fill}" font-family="Montserrat" font-size="${p.fontSize}" font-weight="700" text-anchor="middle" x="${p.labelX}" y="${p.labelY}" class="hub-label${anchor}"${halo}>${esc(p.label)}</text>
+      </g>`;
+}).join('\n');
+
+const svg = `<svg class="w-full h-full text-surface-dim/40" fill="none" viewBox="${MAP_VIEWBOX.full}" id="hub-map" role="img" aria-label="Карта распределительной сети: четыре хаба (Москва, Екатеринбург, Новосибирск, Владивосток), 26 маршрутов, поставки из Китая">
+      <defs>
+        <marker id="mpu-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#E31E24"></path>
+        </marker>
+      </defs>
+      <!-- Маршруты: магистраль, региональные ветки, импорт из Китая -->
+${routeMarkup}
+      <!-- Точки: хабы, регионы, города -->
+${pointMarkup}
+    </svg>`;
+
+/* ------------------------------------------- 2. данные для клиентских JS */
+const hubData = {};
+points.forEach(p => { hubData[p.id] = {name: p.name, address: p.address, routes: p.routes}; });
+
+/* --------------------------------------------------- 3. сборка шаблона */
+let html = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8');
+
+if (!html.includes('<!--MAP_SVG-->')) throw new Error('в шаблоне нет плейсхолдера <!--MAP_SVG-->');
+html = html.replace('<!--MAP_SVG-->', svg);
+html = html.replace(/<!--SCRIPT_PLACEHOLDER-->\s*/g, '');
+
+const dataScript = `<script type="application/json" id="hub-data">${JSON.stringify({viewbox: MAP_VIEWBOX, hubs: hubData})}</script>`;
+html = html.replace('</body>', `${dataScript}\n</body>`);
+
+fs.mkdirSync(path.join(OUT, 'assets/css'), {recursive: true});
+fs.writeFileSync(path.join(OUT, 'index.html'), html, 'utf8');
+console.log(`✓ docs/index.html — ${(html.length / 1024).toFixed(1)} КБ, точек карты: ${points.length}, маршрутов: ${routes.length}`);
+
+/* --------------------------------------------- 4. копирование статики */
+const copy = (from, to) => {
+  if (!fs.existsSync(from)) return;
+  fs.mkdirSync(path.dirname(to), {recursive: true});
+  fs.cpSync(from, to, {recursive: true});
+};
+copy(path.join(SRC, 'assets/fonts'), path.join(OUT, 'assets/fonts'));
+copy(path.join(SRC, 'assets/img'), path.join(OUT, 'assets/img'));
+copy(path.join(SRC, 'assets/js'), path.join(OUT, 'assets/js'));
+console.log('✓ статика (шрифты, картинки, скрипты) на месте');
+
+/* --------------------------------------------- 4b. robots.txt (временный хостинг) */
+// На GitHub Pages сайт не должен индексироваться (основной домен — mpu-group.ru).
+// При переносе на свой хостинг удалите этот файл или замените на Allow.
+fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /\n', 'utf8');
+console.log('✓ docs/robots.txt (закрыт от индексации на временном хостинге)');
+
+/* ------------------------------------------------------ 5. сборка CSS */
+try {
+  const bin = path.join(__dirname, 'node_modules', '.bin', process.platform === 'win32' ? 'tailwindcss.cmd' : 'tailwindcss');
+  execSync(`"${bin}" -i src/styles.css -o docs/assets/css/site.css --minify`, {cwd: __dirname, stdio: 'inherit'});
+  const size = fs.statSync(path.join(OUT, 'assets/css/site.css')).size;
+  console.log(`✓ docs/assets/css/site.css — ${(size / 1024).toFixed(1)} КБ`);
+} catch (e) {
+  console.error('✗ не удалось собрать CSS (запустите npm install)', e.message);
+  process.exitCode = 1;
+}

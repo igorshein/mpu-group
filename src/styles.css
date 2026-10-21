@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   ШРИФТЫ (self-hosted, с метрическими оверрайдами — убирают CLS)
+   ========================================================================= */
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/manrope-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  ascent-override: 78%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/manrope-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  ascent-override: 78%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600 800;
+  font-display: swap;
+  src: url('../fonts/montserrat-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  ascent-override: 71%;
+  descent-override: 29%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600 800;
+  font-display: swap;
+  src: url('../fonts/montserrat-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+  ascent-override: 71%;
+  descent-override: 29%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================================================
+   БАЗА
+   ========================================================================= */
+@layer base {
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    overscroll-behavior: none;
+    overflow-x: clip;
+  }
+  main > :first-child { margin-top: 0 !important; }
+  main > :last-child { margin-bottom: 0 !important; }
+  ::-webkit-scrollbar { display: none; }
+}
+
+/* =========================================================================
+   КАРТА ЛОГИСТИКИ
+   ========================================================================= */
+#hub-map path.hub-route { transition: opacity .45s ease, stroke-width .45s ease; }
+#hub-map path.hub-route.active-route { stroke-dasharray: 10 6; animation: mpu-route-flow 1.1s linear infinite; }
+#hub-map .hub-circle { transition: transform .35s ease, fill .35s ease; transform-box: fill-box; transform-origin: center; }
+#hub-map .hub-point.active .hub-circle { transform: scale(1.35); }
+#hub-map .hub-label { transition: fill .35s ease, opacity .35s ease; }
+#hub-map .hub-pulse { transform-box: fill-box; transform-origin: center; }
+#hub-map .hub-point.active .hub-pulse { opacity: .7; animation: mpu-ping 1.8s ease-out infinite; }
+#hub-map .hub-point { transition: opacity .35s ease; }
+#hub-map .hub-point:focus { outline: none; }
+#hub-map .hub-point:focus-visible .hub-circle { stroke: #FFF; stroke-width: 2; }
+#hub-map .hub-point:focus-visible .hub-label { text-decoration: underline; }
+
+@keyframes mpu-route-flow { to { stroke-dashoffset: -16; } }
+@keyframes mpu-ping {
+  0% { transform: scale(.55); opacity: .75; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Мобильная версия карты: только 4 хаба и магистраль, крупные подписи */
+@media (max-width: 639px) {
+  #hub-map .is-region { display: none; }
+  #hub-map .hub-label { font-size: 17px; }
+  #hub-map .hub-circle { r: 8; }
+  #hub-map .hub-point.active .hub-circle { transform: scale(1.25); }
+}
+
+/* =========================================================================
+   СПИСОК ХАБОВ И КНОПКИ
+   ========================================================================= */
+.hub-item, .hub-marker { transition: background-color .35s ease, border-color .35s ease, color .35s ease, transform .35s ease; }
+.hub-item:hover { transform: translateX(4px); }
+.hub-item { outline: none; }
+.hub-item:focus { outline: none; }
+.hub-item:focus-visible { outline: 2px solid #E31E24; outline-offset: -2px; }
+
+/* =========================================================================
+   ДОСТУПНОСТЬ: отключаем анимации по запросу системы
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  #hub-map path.hub-route.active-route { animation: none; stroke-dasharray: 6 3; }
+  #hub-map .hub-point.active .hub-pulse { animation: none; opacity: .5; }
+}
