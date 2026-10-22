@@ -12,11 +12,21 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 import crypto from 'crypto';
+
 import { points, routes, MAP_VIEWBOX } from './src/data/map.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.join(__dirname, 'src');
 const OUT = path.join(__dirname, 'docs');
+
+/* ------------------------------------------------------------------ конфиг */
+const siteConfig = JSON.parse(fs.readFileSync(path.join(__dirname, 'config/site.json'), 'utf8'));
+const SITE_URL = 'https://' + siteConfig.domain;
+const origins = [
+  'https://' + siteConfig.domain,
+  'https://' + siteConfig.wwwDomain,
+  ...(siteConfig.extraOrigins || [])
+];
 
 const HUBS = ['moscow', 'ekaterinburg', 'novosibirsk', 'vladivostok'];
 const isRegion = p => p.kind !== 'hub';
@@ -64,6 +74,10 @@ points.forEach(p => { hubData[p.id] = {name: p.name, address: p.address, routes:
 /* --------------------------------------------------- 3. сборка шаблона */
 let html = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8');
 
+// домен и канонический URL берём из config/site.json
+html = html.replace(/https:\/\/mpu-group\.ru\//g, SITE_URL + '/');
+html = html.replace(/<meta content="noindex, follow" name="robots"\/>/, siteConfig.allowIndexing ? '' : '<meta content="noindex, follow" name="robots"/>');
+
 if (!html.includes('<!--MAP_SVG-->')) throw new Error('в шаблоне нет плейсхолдера <!--MAP_SVG-->');
 html = html.replace('<!--MAP_SVG-->', svg);
 html = html.replace(/<!--SCRIPT_PLACEHOLDER-->\s*/g, '');
@@ -98,11 +112,28 @@ const jsFile = path.join(OUT, 'assets/js/site.js');
 const cssV = fs.existsSync(cssFile) ? versionOf(cssFile) : 'dev';
 const jsV = fs.existsSync(jsFile) ? versionOf(jsFile) : 'dev';
 
+/* ------------------------------------------- 4a. PHP-обработчик формы */
+const phpTpl = fs.readFileSync(path.join(SRC, 'api/send-request.php'), 'utf8');
+const phpOut = phpTpl
+  .replace('{{RECIPIENT}}', siteConfig.recipientEmail)
+  .replace('{{SITE_URL}}', SITE_URL)
+  .replace('{{DOMAIN}}', siteConfig.domain)
+  .replace('{{MAIL_FROM}}', siteConfig.mailFrom)
+  .replace('{{ALLOWED_ORIGINS}}', JSON.stringify(origins).replace(/"/g, "'"));
+fs.mkdirSync(path.join(__dirname, 'api'), {recursive: true});
+fs.writeFileSync(path.join(__dirname, 'api/send-request.php'), phpOut, 'utf8');
+console.log('✓ api/send-request.php — домен', siteConfig.domain, '| получатель', siteConfig.recipientEmail);
+
 /* --------------------------------------------- 4b. robots.txt (временный хостинг) */
 // На GitHub Pages сайт не должен индексироваться (основной домен — mpu-group.ru).
 // При переносе на свой хостинг удалите этот файл или замените на Allow.
-fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /\n', 'utf8');
-console.log('✓ docs/robots.txt (закрыт от индексации на временном хостинге)');
+if (siteConfig.allowIndexing) {
+  fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: ' + SITE_URL + '/sitemap.xml\n', 'utf8');
+  console.log('✓ docs/robots.txt — индексация разрешена');
+} else {
+  fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /\n', 'utf8');
+  console.log('✓ docs/robots.txt — закрыт от индексации (временный хостинг)');
+}
 
 /* ------------------------------------------------------ 5. сборка CSS */
 try {

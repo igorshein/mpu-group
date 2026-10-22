@@ -8,7 +8,8 @@
     "css": "tailwindcss -i src/styles.css -o docs/assets/css/site.css --minify",
     "watch:css": "tailwindcss -i src/styles.css -o docs/assets/css/site.css --watch",
     "dev": "node build.mjs && node scripts/dev-server.mjs",
-    "deploy": "node build.mjs && git add src docs api build.mjs tailwind.config.js package.json package-lock.json scripts DEPLOY.md .gitignore && git commit -m \"build: regenerate site\" && git push origin master"
+    "deploy": "node build.mjs && git add src docs api build.mjs tailwind.config.js package.json package-lock.json scripts DEPLOY.md .gitignore && git commit -m \"build: regenerate site\" && git push origin master",
+    "package": "node scripts/package.mjs"
   },
   "devDependencies": {
     "tailwindcss": "3.4.17"
