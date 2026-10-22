@@ -31,6 +31,13 @@ fs.cpSync(path.join(ROOT, 'docs'), OUT, {recursive: true});
 const robots = path.join(OUT, 'robots.txt');
 if (fs.existsSync(robots)) fs.rmSync(robots);
 
+// 1b. .htaccess (редиректы, кэш, заголовки безопасности)
+const htaccess = path.join(ROOT, '.htaccess');
+if (fs.existsSync(htaccess)) {
+  fs.copyFileSync(htaccess, path.join(OUT, '.htaccess'));
+  console.log('✓ .htaccess добавлен в корень сайта');
+}
+
 // 2. api/ рядом
 fs.cpSync(path.join(ROOT, 'api'), path.join(OUT, 'api'), {recursive: true});
 
