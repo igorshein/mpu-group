@@ -86,8 +86,7 @@ const dataScript = `<script type="application/json" id="hub-data">${JSON.stringi
 html = html.replace('</body>', `${dataScript}\n</body>`);
 
 fs.mkdirSync(path.join(OUT, 'assets/css'), {recursive: true});
-// версии считаются после сборки CSS — см. финальный шаг
-console.log(`✓ docs/index.html — ${(html.length / 1024).toFixed(1)} КБ, точек карты: ${points.length}, маршрутов: ${routes.length}`);
+console.log(`✓ собран HTML — ${(html.length / 1024).toFixed(1)} КБ, точек карты: ${points.length}, маршрутов: ${routes.length}`);
 
 /* --------------------------------------------- 4. копирование статики */
 const copy = (from, to) => {
@@ -146,19 +145,18 @@ try {
   process.exitCode = 1;
 }
 
-/* --------------------- 6. cache-busting: проставляем версии в собранный HTML */
+/* --------------------- 6. cache-busting: проставляем версии и записываем HTML */
 try {
   const cssFile = path.join(OUT, 'assets/css/site.css');
   const jsFile = path.join(OUT, 'assets/js/site.js');
   const hash = f => crypto.createHash('md5').update(fs.readFileSync(f)).digest('hex').slice(0, 8);
   const cssV = fs.existsSync(cssFile) ? hash(cssFile) : 'dev';
   const jsV = fs.existsSync(jsFile) ? hash(jsFile) : 'dev';
-  const idx = path.join(OUT, 'index.html');
-  let out = fs.readFileSync(idx, 'utf8');
-  out = out.replace(/href="assets\/css\/site\.css(\?v=[a-z0-9]+)?"/, 'href="assets/css/site.css?v=' + cssV + '"');
-  out = out.replace(/src="assets\/js\/site\.js(\?v=[a-z0-9]+)?"/, 'src="assets/js/site.js?v=' + jsV + '"');
-  fs.writeFileSync(idx, out, 'utf8');
-  console.log('✓ cache-busting: css?v=' + cssV + ' js?v=' + jsV);
+  html = html.replace(/href="assets\/css\/site\.css(\?v=[a-z0-9]+)?"/, 'href="assets/css/site.css?v=' + cssV + '"');
+  html = html.replace(/src="assets\/js\/site\.js(\?v=[a-z0-9]+)?"/, 'src="assets/js/site.js?v=' + jsV + '"');
+  fs.writeFileSync(path.join(OUT, 'index.html'), html, 'utf8');
+  console.log('✓ docs/index.html записан — версии: css?v=' + cssV + ' js?v=' + jsV);
 } catch (e) {
-  console.warn('cache-busting пропущен:', e.message);
+  console.error('✗ не удалось записать docs/index.html:', e.message);
+  process.exitCode = 1;
 }

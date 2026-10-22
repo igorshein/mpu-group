@@ -4,7 +4,7 @@
  * Принимает POST (multipart/form-data или JSON), валидирует данные и отправляет письмо
  * на info@mpugroup.ru с вложением (файл ТЗ/спецификации), если он приложен.
  *
- * Требования: PHP 7.0+ (проверено вручную на 7.4 / 8.x), расширение mail() в настройках
+ * Требования: PHP 5.6+ (проверено на 5.6 и 8.x), расширение mail() в настройках
  * почты хостинга. Внешние зависимости не нужны.
  *
  * НАСТРОЙКА ПЕРЕД РАЗМЕЩЕНИЕМ:
@@ -15,8 +15,6 @@
  *                       для основного хостинга добавьте свой домен.
  *  3) SITE_URL        — адрес сайта, который попадёт в письмо.
  */
-
-declare(strict_types=1);
 
 const RECIPIENT_EMAIL   = '{{RECIPIENT}}';
 const SITE_NAME         = 'MPU GROUP';
@@ -30,7 +28,7 @@ const SUBJECT_PREFIX     = 'Заявка на КП с сайта MPU GROUP';
 
 /* ------------------------------------------------------------------ helpers */
 
-function respond(array $payload, int $status = 200): void
+function respond($payload, $status = 200)
 {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
@@ -40,12 +38,12 @@ function respond(array $payload, int $status = 200): void
     exit;
 }
 
-function is_post(): bool
+function is_post()
 {
     return isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'POST';
 }
 
-function host_name(): string
+function host_name()
 {
     $host = isset($_SERVER['HTTP_HOST']) ? (string) $_SERVER['HTTP_HOST'] : '';
     $host = preg_replace('/[^A-Za-z0-9.\-]/', '', $host);
@@ -55,7 +53,7 @@ function host_name(): string
     return $host;
 }
 
-function sender_address(): string
+function sender_address()
 {
     $from = trim(MAIL_FROM);
     if ($from !== '') {
@@ -67,7 +65,7 @@ function sender_address(): string
     return 'no-reply@' . $root;
 }
 
-function clean_text($value, int $max = MAX_FIELDS_LENGTH): string
+function clean_text($value, $max = MAX_FIELDS_LENGTH)
 {
     if (!is_scalar($value)) {
         return '';
@@ -85,17 +83,33 @@ function clean_text($value, int $max = MAX_FIELDS_LENGTH): string
     return $value;
 }
 
-function esc_html(string $value): string
+function esc_html($value)
 {
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-function mime_subject(string $subject): string
+function mime_subject($subject)
 {
     return '=?UTF-8?B?' . base64_encode($subject) . '?=';
 }
 
-function client_ip(): string
+function secure_random($length)
+{
+    // random_bytes() появился в PHP 7.0 — нужен запасной вариант
+    if (function_exists('random_bytes')) {
+        return random_bytes($length);
+    }
+    if (function_exists('openssl_random_pseudo_bytes')) {
+        return openssl_random_pseudo_bytes($length);
+    }
+    $out = '';
+    for ($i = 0; $i < $length; $i++) {
+        $out .= chr(mt_rand(0, 255));
+    }
+    return $out;
+}
+
+function client_ip()
 {
     $ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
     return preg_replace('/[^0-9a-fA-F:.]/', '', $ip) ?: 'unknown';
@@ -116,6 +130,14 @@ if (isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) 
     exit;
 }
 
+/* ------------------------------------------- проверка Origin (CSRF-защита) */
+// Заявку может отправить только наш сайт: иначе любой сторонний домен
+// мог бы слать письма через наш сервер (использование как relay).
+$requestOrigin = isset($_SERVER['HTTP_ORIGIN']) ? (string) $_SERVER['HTTP_ORIGIN'] : '';
+if ($requestOrigin !== '' && !in_array($requestOrigin, ALLOWED_ORIGINS, true)) {
+    respond(array('ok' => false, 'error' => 'Запрос отклонён: недопустимый источник.'), 403);
+}
+
 /* ------------------------------------------------------------------ input */
 
 if (!is_post()) {
@@ -134,6 +156,14 @@ if (strpos($contentType, 'multipart/form-data') !== false || !empty($_POST)) {
     $data    = is_array($decoded) ? $decoded : [];
     $files  = [];
 }
+
+// rate limit: не чаще одной заявки в 15 секунд с одного IP
+$rlFile = sys_get_temp_dir() . '/mpu_rl_' . md5(client_ip());
+$rlLast = @file_get_contents($rlFile);
+if ($rlLast !== false && (time() - (int) $rlLast) < 15) {
+    respond(array('ok' => false, 'error' => 'Слишком часто. Подождите 15 секунд и попробуйте снова.'), 429);
+}
+@file_put_contents($rlFile, (string) time());
 
 // Honeypot: поле скрыто от пользователя, но заполняется ботами.
 $honeypot = clean_text(isset($data['website']) ? $data['website'] : '', 100);
@@ -271,7 +301,7 @@ if ($attachment === null) {
     $headers[] = 'Content-Type: text/plain; charset=UTF-8';
     $headers[] = 'Content-Transfer-Encoding: 8bit';
 } else {
-    $boundary = 'mpu_' . bin2hex(random_bytes(12));
+    $boundary = 'mpu_' . bin2hex(secure_random(12));
     $headers[] = 'Content-Type: multipart/mixed; boundary="' . $boundary . '"';
     $body = "--{$boundary}\r\n"
         . "Content-Type: text/plain; charset=UTF-8\r\n"
