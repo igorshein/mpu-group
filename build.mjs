@@ -97,6 +97,8 @@ const copy = (from, to) => {
 copy(path.join(SRC, 'assets/fonts'), path.join(OUT, 'assets/fonts'));
 copy(path.join(SRC, 'assets/img'), path.join(OUT, 'assets/img'));
 copy(path.join(SRC, 'assets/js'), path.join(OUT, 'assets/js'));
+// favicon.svg пользователя — в корень сайта
+copy(path.join(SRC, 'assets/favicon.svg'), path.join(OUT, 'favicon.svg'));
 console.log('✓ статика (шрифты, картинки, скрипты) на месте');
 
 /* ------------------------------- 4a. cache-busting: версия ассетов в URL */

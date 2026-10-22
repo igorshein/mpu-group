@@ -241,8 +241,8 @@ if (!empty($files['spec']) && is_array($files['spec']) && isset($files['spec']['
 
 /* ------------------------------------------------------------------- mail */
 
-$isEmail = (bool) filter_var($contact, FILTER_VALIDATE_EMAIL);
-$replyTo = $isEmail ? $contact : '';
+// Ответ на письмо всегда идёт на корпоративный ящик (no-reply@ — несуществующий адрес)
+$replyTo = RECIPIENT_EMAIL;
 
 $rows = [
     'Компания / контактное лицо' => $company,
