@@ -27,9 +27,16 @@ fs.mkdirSync(OUT, {recursive: true});
 
 // 1. содержимое docs/ → корень сайта
 fs.cpSync(path.join(ROOT, 'docs'), OUT, {recursive: true});
-// robots.txt на основном хостинге не нужен (в нём Disallow) — убираем, он генерируется под GitHub Pages
-const robots = path.join(OUT, 'robots.txt');
-if (fs.existsSync(robots)) fs.rmSync(robots);
+// robots.txt: на основном хостинге оставляем, если индексация разрешена
+// (файл с Allow + Sitemap нужен поисковикам на проде)
+const siteConfigPkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/site.json'), 'utf8'));
+if (!siteConfigPkg.allowIndexing) {
+  const robots = path.join(OUT, 'robots.txt');
+  if (fs.existsSync(robots)) fs.rmSync(robots);
+  console.log('robots.txt удалён из архива (allowIndexing: false)');
+} else {
+  console.log('✓ robots.txt сохранён в архиве (Allow + Sitemap)');
+}
 
 // 1b. .htaccess (редиректы, кэш, заголовки безопасности)
 const htaccess = path.join(ROOT, '.htaccess');

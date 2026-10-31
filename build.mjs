@@ -275,7 +275,7 @@ categories.forEach((c, i) => {
       NUM: c.num,
       IMG_ALT: jsonldEsc(c.imgAlt),
       IMG_SRC_ROOT: '/' + c.imgSrc,
-      IMG_SRCSET_ROOT: '/' + c.imgSrcset.replaceAll('assets/', '/assets/'),
+      IMG_SRCSET_ROOT: c.imgSrcset.replaceAll('assets/', '/assets/'),
       EYEBROW: jsonldEsc(c.eyebrow),
       BADGE: jsonldEsc(c.badge),
       H1: jsonldEsc(c.name),
