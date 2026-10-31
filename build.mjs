@@ -120,18 +120,13 @@ const jsV = fs.existsSync(jsFile) ? versionOf(jsFile) : 'dev';
 const shellHtml = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8');
 const rawHeader = shellHtml.match(/<header[\s\S]*?<\/header>/)[0];
 const rawFooter = shellHtml.match(/<footer[\s\S]*?<\/footer>/)[0];
-const cardsGridStart = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">';
-const cardsChunk = shellHtml.slice(
-  shellHtml.indexOf(cardsGridStart) + cardsGridStart.length,
-  shellHtml.indexOf('<!-- КАРТОЧКИ:КОНЕЦ -->')
-);
 
 // Общие маршруты шапки/футера для всех страниц, кроме лендинга.
 // Пункты без собственных якорей на лендинге ведут в согласованное место.
 const SHELL_ROUTES = {
   'glavnaya': '/',
-  'katalog-produktsii': '/katalog/',
-  'skachat-prays-list': '/katalog/',
+  'katalog-produktsii': '/#katalog-produktsii',
+  'skachat-prays-list': '/#katalog-produktsii',
   'zayavka-na-kp': '/#express-request',
   'politika-konfidentsialnosti': '/#kontakty',
   'kachestvo-i-sertifikaty': '/#o-kompanii'
@@ -146,10 +141,8 @@ function normalizeShell(fragment) {
 }
 const pageHeader = normalizeShell(rawHeader);
 const pageFooter = normalizeShell(rawFooter);
-const hubCards = normalizeShell(cardsChunk);
 
 const pageTpl = fs.readFileSync(path.join(SRC, 'pages/catalog-page.html'), 'utf8');
-const hubTpl = fs.readFileSync(path.join(SRC, 'pages/catalog-hub.html'), 'utf8');
 
 const pageRobots = siteConfig.allowIndexing ? '' : '<meta content="noindex, follow" name="robots"/>';
 const jsonldEsc = s => esc(String(s));
@@ -193,50 +186,6 @@ const emptySlot = '<span class="block" aria-hidden="true"></span>';
 
 const pageOutputs = [];
 
-// --- хаб /katalog/ ---
-const hubTitle = 'Каталог продукции и услуг — МПУ ГРУПП | Металлопрокат, трубы, металлоконструкции';
-const hubDesc = 'Каталог продукции МПУ ГРУПП: металлопрокат, трубный прокат и запорная арматура, металлоконструкции, инженерные сети, промышленное оборудование, строительные материалы, рулонная сталь, металлообработка. Позиции и стандарты ГОСТ / ТУ / ASTM / DIN, склады в Москве, Екатеринбурге, Новосибирске и Владивостоке.';
-const hubJsonld = jsonldTag({
-  '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  name: 'Каталог продукции и услуг',
-  url: SITE_URL + '/katalog/',
-  mainEntity: {
-    '@type': 'ItemList',
-    name: 'Номенклатурные направления МПУ ГРУПП',
-    itemListElement: categories.map((c, i) => ({
-      '@type': 'ListItem',
-      position: i + 1,
-      name: c.name,
-      url: SITE_URL + '/katalog/' + c.slug + '/'
-    }))
-  }
-}) + jsonldTag({
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: breadcrumbItems([
-    {name: 'Главная', url: SITE_URL + '/'},
-    {name: 'Каталог продукции'}
-  ])
-});
-pageOutputs.push({
-  relPath: 'katalog/index.html',
-  html: fillPage(hubTpl, {
-    TITLE: hubTitle,
-    DESCRIPTION: hubDesc,
-    OG_TITLE: hubTitle,
-    OG_DESCRIPTION: hubDesc,
-    CANONICAL: SITE_URL + '/katalog/',
-    ROBOTS: pageRobots,
-    JSONLD: hubJsonld,
-    HEADER: pageHeader,
-    FOOTER: pageFooter,
-    CARDS: hubCards.trim()
-  }),
-  loc: SITE_URL + '/katalog/',
-  priority: '0.9'
-});
-
 // --- 8 страниц категорий ---
 categories.forEach((c, i) => {
   const catUrl = SITE_URL + '/katalog/' + c.slug + '/';
@@ -255,7 +204,6 @@ categories.forEach((c, i) => {
     '@type': 'BreadcrumbList',
     itemListElement: breadcrumbItems([
       {name: 'Главная', url: SITE_URL + '/'},
-      {name: 'Каталог продукции', url: SITE_URL + '/katalog/'},
       {name: c.name}
     ])
   });
@@ -289,7 +237,7 @@ categories.forEach((c, i) => {
     priority: '0.8'
   });
 });
-console.log('✓ страницы каталога: 1 хаб + ' + categories.length + ' категорий');
+console.log('✓ страницы каталога: ' + categories.length + ' категорий');
 
 /* ------------------------------------------- 4a. PHP-обработчик формы */
 const phpTpl = fs.readFileSync(path.join(SRC, 'api/send-request.php'), 'utf8');
