@@ -12,6 +12,12 @@
   # www.mpugroup.ru -> mpugroup.ru
   RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
   RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+  # хаб /katalog/ больше не существует: redirect на главную (секция каталога там).
+  # Фрагмент (#katalog-produktsii) в Location прокси Beget кодирует в %23 и даёт 404,
+  # поэтому цель — корень главной (якори клиент весь видит после перехода).
+  # Точное совпадение (^katalog/?$) — страницы категорий /katalog/<slug>/ не задевает.
+  RewriteRule ^katalog/?$ https://mpugroup.ru/ [R=301,L]
 </IfModule>
 
 # --- кэширование статики ---

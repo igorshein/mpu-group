@@ -9,14 +9,13 @@
 ```
 /src                     исходники (единственный источник правок)
   index.html             шаблон лендинга ({{MAP_SVG}} подставляется сборщиком)
-  pages/*.html           шаблоны страниц /katalog/ (хаб + категории)
+  pages/catalog-page.html  шаблон страницы категории /katalog/<slug>/ (хаба нет)
   data/map.mjs           точки/маршруты/хабы карты логистики (единый источник)
   data/catalog.mjs       данные каталога: 8 категорий /katalog/<slug>/ (01–08)
   styles.css             Tailwind + свои стили, @font-face, keyframes
-  assets/js/site.js      бургер-меню, карта, форма, шторка каталога (fetch)
-  assets/img, fonts      (сюда кладутся новые картинки/шрифты)
+  assets/js/site.js      бургер-меню, карта, форма, резервный якорный скролл
 /docs                    собранный сайт → публикуется на GitHub Pages
-  katalog/**             страницы каталога (генерируются build.mjs из src/pages)
+  katalog/**             8 страниц категорий (генерируются build.mjs из src/data/catalog.mjs)
 /api/send-request.php    обработчик заявки (PHP, отправляет на info@mpugroup.ru) — генерируется из src/api/ по config/site.json
 /config/site.json        домен, e-mail получателя, MAIL_FROM, разрешённые origins, индексация
 /build.mjs               сборщик
@@ -49,9 +48,8 @@ npm run deploy         # сборка + commit + push в master (Pages пере�
 
 - Источник: ветка `master`, путь `/docs`.
 - Сборка запускается вручную (`npm run deploy`) — Pages просто раздаёт готовые файлы.
-- `docs/robots.txt` закрывает сайт от индексации: пока сайт живёт на `igorshein.github.io`,
-  основной домен — `mpu-group.ru`. **При переносе на свой хостинг файл `docs/robots.txt`
-  нужно удалить** (или заменить на `Allow: /`), иначе поисковики не проиндексируют сайт.
+- Это зеркало основного сайта `mpugroup.ru`; продакшен — на Beget (см. ниже).
+  `config/site.json` управляет `robots.txt` (при `allowIndexing: true` индексация разрешена).
 
 ## Перенос на свой хостинг (с PHP)
 
@@ -60,7 +58,21 @@ npm run deploy         # сборка + commit + push в master (Pages пере�
 ```
 docs/            → корень сайта (index.html, assets/, favicon.svg)
 api/             → в корень сайта (обработчик формы)
+.htaccess        → в корень сайта (редиректы, кэш, безопасность)
 ```
+
+Важно: страницы каталога — 8 страниц категорий `/katalog/<slug>/`; хаб-страница
+`/katalog/` не существует. В `.htaccess` есть 301-редирект `^katalog/?$ → https://mpugroup.ru/`
+(точное совпадение, страницы категорий не задевает) — не убирайте его, иначе на
+`/katalog/` будет отдаваться 404, а его URL сейчас в индексе у поисковиков.
+
+Деплой на Beget (актуальный способ): FTP-хост по IP `ftp://45.130.41.55`
+(`ftp.beget.com` из некоторых сетей не резолвится), каталог сайта
+`~/mpugroup.ru/public_html/`. Сборка обновляется так: правки → `npm run build`
+(пишет `docs/`) → `npm run package` (обновляет `dist/` из `docs/`) → загрузка
+содержимого `dist/` в `~/mpugroup.ru/public_html/`. Не деплойте напрямую из
+`docs/` в обход `npm run package`: именно `package` формирует `dist/`, без него
+на прод может уехать старая сборка.
 
 ### Требования к хостингу
 
