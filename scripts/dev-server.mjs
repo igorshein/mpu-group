@@ -26,8 +26,13 @@ const TYPES = {
 http.createServer((req, res) => {
   let urlPath = decodeURIComponent(req.url.split('?')[0]);
   if (urlPath === '/') urlPath = '/index.html';
-  const file = path.join(ROOT, urlPath);
+  let file = path.join(ROOT, urlPath);
   if (!file.startsWith(ROOT)) { res.writeHead(403).end('forbidden'); return; }
+  // directory index: /katalog/.../ → /katalog/.../index.html
+  if (urlPath.endsWith('/') || !path.extname(file)) {
+    file = path.join(ROOT, urlPath, 'index.html');
+    if (!file.startsWith(ROOT)) { res.writeHead(403).end('forbidden'); return; }
+  }
   fs.readFile(file, (err, data) => {
     if (err) { res.writeHead(404, {'Content-Type': 'text/plain; charset=utf-8'}).end('404 — ' + urlPath); return; }
     res.writeHead(200, {'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache'});

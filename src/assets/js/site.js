@@ -6,7 +6,9 @@
 */
 (function(){
   // Данные карты генерируются из src/data/map.js сборщиком (см. build.mjs)
-  const hubPayload = JSON.parse(document.getElementById('hub-data').textContent);
+  const hubDataEl = document.getElementById('hub-data'); // на страницах /katalog/* этой панели нет
+  if (!hubDataEl) return;
+  const hubPayload = JSON.parse(hubDataEl.textContent);
   const hubData = hubPayload.hubs;
   const mapViewbox = hubPayload.viewbox;
 
@@ -213,4 +215,144 @@
         mailtoFallback(data);
       });
   });
+})();
+
+/* ------------------------------------------- */
+
+/* 4. Каталог: боковая шторка. Контент панелей живёт на страницах /katalog/<slug>/
+   (template#catalog-panel-content); лендинг подтягивает его fetch'ем — это
+   progressive enhancement, SEO-текст остаётся на индексируемых страницах. */
+(function () {
+  var drawer = document.getElementById('catalog-drawer');
+  if (!drawer) return;
+  var backdrop = drawer.querySelector('[data-drawer-backdrop]');
+  var panel = drawer.querySelector('[data-drawer-panel]');
+  var content = drawer.querySelector('[data-drawer-content]');
+  var closeBtn = drawer.querySelector('[data-drawer-close]');
+  var isOpen = false;
+  var currentId = null;
+  var lastTrigger = null;
+  var loadSeq = 0;
+
+  function show() {
+    if (isOpen) return;
+    isOpen = true;
+    drawer.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () {
+      backdrop.classList.remove('opacity-0');
+      panel.classList.remove('translate-x-full');
+    });
+    closeBtn.focus();
+  }
+
+  function openFromTrigger(id) {
+    var trigger = document.querySelector('a[data-catalog="' + id + '"]');
+    if (!trigger) return false;
+    var url = trigger.getAttribute('href') || '';
+    if (url.indexOf('/katalog/') !== 0) return false;
+    lastTrigger = trigger;
+    currentId = id;
+    var seq = ++loadSeq;
+    if (window.history && history.replaceState) {
+      history.replaceState(null, '', '#card-' + id);
+    }
+    show();
+    content.innerHTML = '<div class="p-8 space-y-4" aria-hidden="true">' +
+      '<div class="bg-surface-container-low h-24 animate-pulse"></div>' +
+      '<div class="bg-surface-container-low h-4 w-3/4 animate-pulse"></div>' +
+      '<div class="bg-surface-container-low h-4 w-2/3 animate-pulse"></div>' +
+      '</div>';
+    content.scrollTop = 0;
+    fetch(url)
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      })
+      .then(function (text) {
+        if (seq !== loadSeq) return; // панель закрыли или переключили
+        var doc = new DOMParser().parseFromString(text, 'text/html');
+        var hero = doc.querySelector('#catalog-hero');
+        var main = doc.querySelector('#catalog-content');
+        if (!hero || !main) throw new Error('нет контента категории');
+        content.innerHTML = hero.outerHTML + main.outerHTML;
+        content.scrollTop = 0;
+      })
+      .catch(function () {
+        // fetch не сработал (офлайн/нет сети) — просто уходим на страницу категории
+        if (seq === loadSeq) window.location.href = url;
+      });
+    return true;
+  }
+
+  function close() {
+    if (!isOpen) return;
+    isOpen = false;
+    currentId = null;
+    loadSeq++; // отменяем незавершённую загрузку
+    backdrop.classList.add('opacity-0');
+    panel.classList.add('translate-x-full');
+    document.body.style.overflow = '';
+    window.setTimeout(function () {
+      if (!isOpen) drawer.classList.add('hidden');
+    }, 340);
+    // убираем хеш из адреса, чтобы открытие не срабатывало повторно
+    if (/^#card-/.test(window.location.hash)) {
+      if (window.history && history.replaceState) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    }
+    if (lastTrigger) {
+      try { lastTrigger.focus(); } catch (e) { /* noop */ }
+    }
+  }
+
+  function handleHash() {
+    var m = (window.location.hash || '').match(/^#card-(\d\d)$/);
+    if (m) {
+      if (openFromTrigger(m[1])) return;
+    }
+    if (isOpen) close();
+  }
+
+  // клики по триггерам карточек: перехватываем и открываем шторку
+  document.addEventListener('click', function (e) {
+    var trigger = e.target && e.target.closest ? e.target.closest('a[data-catalog]') : null;
+    if (!trigger) return;
+    var id = trigger.getAttribute('data-catalog');
+    if (!openFromTrigger(id)) return; // нет обвязки — обычный переход
+    e.preventDefault();
+  });
+
+  window.addEventListener('hashchange', handleHash);
+
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  if (backdrop) backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'Escape' || e.key === 'Esc') && isOpen) close();
+  });
+
+  // ссылка «Оставить заявку на КП» внутри шторки закрывает её и ведёт к форме
+  content.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest ? e.target.closest('a[href$="#express-request"]') : null;
+    if (!a) return;
+    e.preventDefault();
+    close();
+    var target = document.getElementById('express-request');
+    if (target) {
+      // instant-скролл сразу после разблокировки body — надежнее нативного
+      // перехода по якорю (плавный скролл мог быть отменён открытием шторки)
+      window.setTimeout(function () {
+        target.scrollIntoView({behavior: 'instant', block: 'start'});
+        if (window.history && history.replaceState) {
+          history.replaceState(null, '', '#express-request');
+        }
+      }, 30);
+    } else {
+      window.location.href = a.href;
+    }
+  });
+
+  // deep-link: если в адресе сразу #card-XX — открываем соответствующую позицию
+  handleHash();
 })();

@@ -121,6 +121,7 @@
    СПИСОК ХАБОВ И КНОПКИ
    ========================================================================= */
 .hub-item, .hub-marker { transition: background-color .35s ease, border-color .35s ease, color .35s ease, transform .35s ease; }
+.hub-marker { flex: 0 0 2rem; width: 2rem; height: 2rem; min-width: 2rem; min-height: 2rem; border-radius: 9999px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
 .hub-item:hover { transform: translateX(4px); }
 .hub-item { outline: none; }
 .hub-item:focus { outline: none; }

@@ -14,6 +14,7 @@ import { execSync } from 'child_process';
 import crypto from 'crypto';
 
 import { points, routes, MAP_VIEWBOX } from './src/data/map.mjs';
+import { categories } from './src/data/catalog.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.join(__dirname, 'src');
@@ -113,6 +114,183 @@ const jsFile = path.join(OUT, 'assets/js/site.js');
 const cssV = fs.existsSync(cssFile) ? versionOf(cssFile) : 'dev';
 const jsV = fs.existsSync(jsFile) ? versionOf(jsFile) : 'dev';
 
+/* ---------------------------------------------- 3b. страницы каталога */
+/* Хаб /katalog/ + 8 страниц категорий /katalog/<slug>/. Шаблоны в src/pages/,
+   данные — src/data/catalog.mjs (порядок 01–08 из «Позиции в карточках.docx»). */
+const shellHtml = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8');
+const rawHeader = shellHtml.match(/<header[\s\S]*?<\/header>/)[0];
+const rawFooter = shellHtml.match(/<footer[\s\S]*?<\/footer>/)[0];
+const cardsGridStart = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">';
+const cardsChunk = shellHtml.slice(
+  shellHtml.indexOf(cardsGridStart) + cardsGridStart.length,
+  shellHtml.indexOf('<!-- КАРТОЧКИ:КОНЕЦ -->')
+);
+
+// Общие маршруты шапки/футера для всех страниц, кроме лендинга.
+// Пункты без собственных якорей на лендинге ведут в согласованное место.
+const SHELL_ROUTES = {
+  'glavnaya': '/',
+  'katalog-produktsii': '/katalog/',
+  'skachat-prays-list': '/katalog/',
+  'zayavka-na-kp': '/#express-request',
+  'politika-konfidentsialnosti': '/#kontakty',
+  'kachestvo-i-sertifikaty': '/#o-kompanii'
+};
+function normalizeShell(fragment) {
+  let s = fragment.replaceAll('assets/', '/assets/');
+  s = s.replace(/data-path="([^"]*)"\s+href="#"/g, (m, dp) =>
+    'data-path="' + dp + '" href="' + (SHELL_ROUTES[dp] || '/#' + dp) + '"');
+  // прочие якоря → на лендинг
+  s = s.replace(/href="#([a-z0-9-]+)"/g, 'href="/#$1"');
+  return s;
+}
+const pageHeader = normalizeShell(rawHeader);
+const pageFooter = normalizeShell(rawFooter);
+const hubCards = normalizeShell(cardsChunk);
+
+const pageTpl = fs.readFileSync(path.join(SRC, 'pages/catalog-page.html'), 'utf8');
+const hubTpl = fs.readFileSync(path.join(SRC, 'pages/catalog-hub.html'), 'utf8');
+
+const pageRobots = siteConfig.allowIndexing ? '' : '<meta content="noindex, follow" name="robots"/>';
+const jsonldEsc = s => esc(String(s));
+
+function jsonldTag(obj) {
+  return '<script type="application/ld+json">' + JSON.stringify(obj) + '</script>';
+}
+
+function breadcrumbItems(items) {
+  return items.map((it, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: it.name,
+    ...(it.url ? {item: it.url} : {})
+  }));
+}
+
+const dom = (inner, p, k) => inner.split('{{' + p + '}}').join(k);
+
+function fillPage(tpl, map) {
+  // никакие вхождения не должны остаться неразрешёнными
+  let h = tpl;
+  for (const [k, v] of Object.entries(map)) h = dom(h, k, v == null ? '' : String(v));
+  const left = h.match(/\{\{[A-Z_]+\}\}/g);
+  if (left) console.warn('⚠ не заполнены плейсхолдеры:', left.join(', '));
+  return h;
+}
+
+// карточки предыдущая/следующая категория
+function angleLink(href, name, dir, align) {
+  const icon = dir === 'back' ? 'arrow_back' : 'arrow_forward';
+  const rel = dir === 'back' ? 'rel="prev"' : 'rel="next"';
+  return `<a class="group bg-surface-container-low p-5 flex ${align === 'end' ? 'flex-col items-end text-right' : 'flex-col'} gap-2 hover:bg-surface-container transition-colors" href="${href}" ${rel}>
+
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-secondary ${align === 'end' ? 'flex-row-reverse' : ''} flex items-center gap-2"><span class="material-symbols-outlined text-base">${icon}</span><span>${dir === 'back' ? 'Назад' : 'Вперёд'}</span></span>
+<span class="font-headline-sm text-headline-sm uppercase text-on-surface group-hover:text-primary-container break-words">${jsonldEsc(name)}</span>
+</a>`;
+}
+
+const emptySlot = '<span class="block" aria-hidden="true"></span>';
+
+const pageOutputs = [];
+
+// --- хаб /katalog/ ---
+const hubTitle = 'Каталог продукции и услуг — МПУ ГРУПП | Металлопрокат, трубы, металлоконструкции';
+const hubDesc = 'Каталог продукции МПУ ГРУПП: металлопрокат, трубный прокат и запорная арматура, металлоконструкции, инженерные сети, промышленное оборудование, строительные материалы, рулонная сталь, металлообработка. Позиции и стандарты ГОСТ / ТУ / ASTM / DIN, склады в Москве, Екатеринбурге, Новосибирске и Владивостоке.';
+const hubJsonld = jsonldTag({
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Каталог продукции и услуг',
+  url: SITE_URL + '/katalog/',
+  mainEntity: {
+    '@type': 'ItemList',
+    name: 'Номенклатурные направления МПУ ГРУПП',
+    itemListElement: categories.map((c, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: c.name,
+      url: SITE_URL + '/katalog/' + c.slug + '/'
+    }))
+  }
+}) + jsonldTag({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems([
+    {name: 'Главная', url: SITE_URL + '/'},
+    {name: 'Каталог продукции'}
+  ])
+});
+pageOutputs.push({
+  relPath: 'katalog/index.html',
+  html: fillPage(hubTpl, {
+    TITLE: hubTitle,
+    DESCRIPTION: hubDesc,
+    OG_TITLE: hubTitle,
+    OG_DESCRIPTION: hubDesc,
+    CANONICAL: SITE_URL + '/katalog/',
+    ROBOTS: pageRobots,
+    JSONLD: hubJsonld,
+    HEADER: pageHeader,
+    FOOTER: pageFooter,
+    CARDS: hubCards.trim()
+  }),
+  loc: SITE_URL + '/katalog/',
+  priority: '0.9'
+});
+
+// --- 8 страниц категорий ---
+categories.forEach((c, i) => {
+  const catUrl = SITE_URL + '/katalog/' + c.slug + '/';
+  const prev = i > 0 ? categories[i - 1] : null;
+  const next = i < categories.length - 1 ? categories[i + 1] : null;
+  const jsonld = jsonldTag({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: c.name,
+    description: c.metaDescription,
+    url: catUrl,
+    isPartOf: SITE_URL + '/',
+    primaryImageOfPage: {'@type': 'ImageObject', url: SITE_URL + '/' + c.imgSrc}
+  }) + jsonldTag({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems([
+      {name: 'Главная', url: SITE_URL + '/'},
+      {name: 'Каталог продукции', url: SITE_URL + '/katalog/'},
+      {name: c.name}
+    ])
+  });
+  pageOutputs.push({
+    relPath: 'katalog/' + c.slug + '/index.html',
+    html: fillPage(pageTpl, {
+      TITLE: c.metaTitle,
+      DESCRIPTION: c.metaDescription,
+      OG_TITLE: c.metaTitle,
+      OG_DESCRIPTION: c.metaDescription,
+      CANONICAL: catUrl,
+      ROBOTS: pageRobots,
+      JSONLD: jsonld,
+      HEADER: pageHeader,
+      FOOTER: pageFooter,
+      NAME: jsonldEsc(c.shortName),
+      NUM: c.num,
+      IMG_ALT: jsonldEsc(c.imgAlt),
+      IMG_SRC_ROOT: '/' + c.imgSrc,
+      IMG_SRCSET_ROOT: '/' + c.imgSrcset.replaceAll('assets/', '/assets/'),
+      EYEBROW: jsonldEsc(c.eyebrow),
+      BADGE: jsonldEsc(c.badge),
+      H1: jsonldEsc(c.name),
+      INTRO: jsonldEsc(c.intro),
+      BODY: c.body,
+      CTA: jsonldEsc(c.ctaText),
+      PREV_LINK: prev ? angleLink('/katalog/' + prev.slug + '/', prev.name, 'back', 'start') : emptySlot,
+      NEXT_LINK: next ? angleLink('/katalog/' + next.slug + '/', next.name, 'fwd', 'end') : emptySlot
+    }),
+    loc: catUrl,
+    priority: '0.8'
+  });
+});
+console.log('✓ страницы каталога: 1 хаб + ' + categories.length + ' категорий');
+
 /* ------------------------------------------- 4a. PHP-обработчик формы */
 const phpTpl = fs.readFileSync(path.join(SRC, 'api/send-request.php'), 'utf8');
 const phpOut = phpTpl
@@ -137,15 +315,24 @@ if (siteConfig.allowIndexing) {
 }
 
 /* --------------------------------------------------------- 4c. sitemap.xml */
-const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-  '  <url>\n    <loc>' + SITE_URL + '/</loc>\n' +
-  '    <changefreq>weekly</changefreq>\n' +
-  '    <priority>1.0</priority>\n' +
-  '  </url>\n' +
-  '</urlset>\n';
+let sitemap;
+if (siteConfig.allowIndexing) {
+  sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    '  <url>\n    <loc>' + SITE_URL + '/</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n' +
+    pageOutputs.map(p =>
+      '  <url>\n    <loc>' + p.loc + '</loc>\n    <changefreq>weekly</changefreq>\n    <priority>' + p.priority + '</priority>\n  </url>\n'
+    ).join('') +
+    '</urlset>\n';
+} else {
+  sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    '  <url>\n    <loc>' + SITE_URL + '/</loc>\n' +
+    '  </url>\n' +
+    '</urlset>\n';
+}
 fs.writeFileSync(path.join(OUT, 'sitemap.xml'), sitemap, 'utf8');
-console.log('✓ docs/sitemap.xml');
+console.log('✓ docs/sitemap.xml — URL: ' + (sitemap.match(/<loc>/g) || []).length);
 
 /* ------------------------------------------------------ 5. сборка CSS */
 try {
@@ -165,10 +352,21 @@ try {
   const hash = f => crypto.createHash('md5').update(fs.readFileSync(f)).digest('hex').slice(0, 8);
   const cssV = fs.existsSync(cssFile) ? hash(cssFile) : 'dev';
   const jsV = fs.existsSync(jsFile) ? hash(jsFile) : 'dev';
-  html = html.replace(/href="assets\/css\/site\.css(\?v=[a-z0-9]+)?"/, 'href="assets/css/site.css?v=' + cssV + '"');
-  html = html.replace(/src="assets\/js\/site\.js(\?v=[a-z0-9]+)?"/, 'src="assets/js/site.js?v=' + jsV + '"');
+  html = html.replace(/href="\/?assets\/css\/site\.css(\?v=[a-z0-9]+)?"/, 'href="assets/css/site.css?v=' + cssV + '"');
+  html = html.replace(/src="\/?assets\/js\/site\.js(\?v=[a-z0-9]+)?"/, 'src="assets/js/site.js?v=' + jsV + '"');
   fs.writeFileSync(path.join(OUT, 'index.html'), html, 'utf8');
   console.log('✓ docs/index.html записан — версии: css?v=' + cssV + ' js?v=' + jsV);
+
+  // страницы каталога: те же версии + запись в /katalog/**/index.html
+  pageOutputs.forEach(p => {
+    let each = p.html
+      .replace(/href="\/?assets\/css\/site\.css(\?v=[a-z0-9]+)?"/, 'href="/assets/css/site.css?v=' + cssV + '"')
+      .replace(/src="\/?assets\/js\/site\.js(\?v=[a-z0-9]+)?"/, 'src="/assets/js/site.js?v=' + jsV + '"');
+    const outPath = path.join(OUT, p.relPath);
+    fs.mkdirSync(path.dirname(outPath), {recursive: true});
+    fs.writeFileSync(outPath, each, 'utf8');
+    console.log('✓ docs/' + p.relPath);
+  });
 } catch (e) {
   console.error('✗ не удалось записать docs/index.html:', e.message);
   process.exitCode = 1;

@@ -2,7 +2,9 @@
 module.exports = {
   content: [
     "./src/index.html",
-    "./src/data/*.js",
+    "./src/pages/*.html",
+    "./src/data/map.mjs",
+    "./src/data/catalog.mjs",
     "./src/assets/js/*.js"
   ],
   "darkMode": "class",

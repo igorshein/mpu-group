@@ -8,12 +8,15 @@
 
 ```
 /src                     исходники (единственный источник правок)
-  index.html             шаблон страницы ({{MAP_SVG}} подставляется сборщиком)
-  styles.css             Tailwind + свои стили, @font-face, keyframes
+  index.html             шаблон лендинга ({{MAP_SVG}} подставляется сборщиком)
+  pages/*.html           шаблоны страниц /katalog/ (хаб + категории)
   data/map.mjs           точки/маршруты/хабы карты логистики (единый источник)
-  assets/js/site.js      бургер-меню, карта, форма
+  data/catalog.mjs       данные каталога: 8 категорий /katalog/<slug>/ (01–08)
+  styles.css             Tailwind + свои стили, @font-face, keyframes
+  assets/js/site.js      бургер-меню, карта, форма, шторка каталога (fetch)
   assets/img, fonts      (сюда кладутся новые картинки/шрифты)
 /docs                    собранный сайт → публикуется на GitHub Pages
+  katalog/**             страницы каталога (генерируются build.mjs из src/pages)
 /api/send-request.php    обработчик заявки (PHP, отправляет на info@mpugroup.ru) — генерируется из src/api/ по config/site.json
 /config/site.json        домен, e-mail получателя, MAIL_FROM, разрешённые origins, индексация
 /build.mjs               сборщик
