@@ -12,14 +12,9 @@
   const hubData = hubPayload.hubs;
   const mapViewbox = hubPayload.viewbox;
 
+  // Карта на всех экранах — полная (как в десктопе); читаемость подписей задаётся CSS (styles.css)
   const map = document.getElementById('hub-map');
-  const isMobileMap = () => window.matchMedia('(max-width: 639px)').matches;
-  function applyMapViewbox() {
-    if (!map) return;
-    map.setAttribute('viewBox', isMobileMap() ? mapViewbox.mobile : mapViewbox.full);
-  }
-  applyMapViewbox();
-  window.addEventListener('resize', applyMapViewbox);
+  if (map) map.setAttribute('viewBox', mapViewbox.full);
 
   const hubItems = document.querySelectorAll('.hub-item');
   const hubPoints = document.querySelectorAll('.hub-point');

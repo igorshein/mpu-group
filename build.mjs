@@ -52,7 +52,7 @@ const pointMarkup = points.map(p => {
   return `      <g class="hub-point${active}${region}" data-hub="${p.id}" style="cursor: pointer;">
         <circle class="hub-pulse" cx="${p.x}" cy="${p.y}" r="${p.r + 7}" fill="none" stroke="#E31E24" stroke-width="1.2" opacity="0" style="display:none"></circle>
         <circle cx="${p.x}" cy="${p.y}" fill="${p.fill}" r="${p.r}" class="hub-circle"></circle>
-        <text fill="${p.fill}" font-family="Montserrat" font-size="${p.fontSize}" font-weight="700" text-anchor="middle" x="${p.labelX}" y="${p.labelY}" class="hub-label${anchor}"${halo}>${esc(p.label)}</text>
+        <text fill="${p.fill}" font-family="Montserrat" font-size="${p.fontSize}" font-weight="700" text-anchor="middle" x="${p.labelX}" y="${p.labelY}" class="hub-label${anchor}" data-kind="${p.kind}"${halo}>${esc(p.label)}</text>
       </g>`;
 }).join('\n');
 

@@ -111,10 +111,39 @@
 
 /* Мобильная версия карты: только 4 хаба и магистраль, крупные подписи */
 @media (max-width: 639px) {
-  #hub-map .is-region { display: none; }
-  #hub-map .hub-label { font-size: 17px; }
-  #hub-map .hub-circle { r: 8; }
+  /* Полный viewBox карты (760x340) в узком контейнере: укрупняем кегли подписей,
+     чтобы после масштабирования города оставались читаемы (эфф. ~7-10px) */
+  #hub-map .hub-label { font-size: 18px; }
+  #hub-map .hub-label[data-kind="hub"] { font-size: 26px; }
+  #hub-map .hub-label[data-kind="import"] { font-size: 21px; }
+  #hub-map .hub-circle { r: 5; }
   #hub-map .hub-point.active .hub-circle { transform: scale(1.25); }
+  /* разведение подписей, наезжающих друг на друга при полном виде (только мобильный) */
+  #hub-map .hub-point[data-hub="usinsk"] .hub-label { transform: translate(0,-22px); }
+  #hub-map .hub-point[data-hub="murmansk"] .hub-label { transform: translate(20px,24px); }
+  #hub-map .hub-point[data-hub="norilsk"] .hub-label { transform: translate(4px,-16px); }
+  #hub-map .hub-point[data-hub="naryanmar"] .hub-label { transform: translate(-6px,-4px); }
+  #hub-map .hub-point[data-hub="vorkuta"] .hub-label { transform: translate(-4px,4px); }
+  #hub-map .hub-point[data-hub="yamal"] .hub-label { transform: translate(-24px,14px); }
+  #hub-map .hub-point[data-hub="yakutia"] .hub-label { transform: translate(0,-14px); }
+  #hub-map .hub-point[data-hub="magadan"] .hub-label { transform: translate(14px,26px); }
+  #hub-map .hub-point[data-hub="habarovsk"] .hub-label { transform: translate(-24px,-6px); }
+  #hub-map .hub-point[data-hub="neryungri"] .hub-label { transform: translate(0,14px); }
+  #hub-map .hub-point[data-hub="kamchatka"] .hub-label { transform: translate(-8px,0); }
+  #hub-map .hub-point[data-hub="irkutsk"] .hub-label { transform: translate(-4px,14px); }
+  /* юго-западное скопление (Ростов/Волгоград/Крым/Мариуполь…): компактный кегль + разведение */
+  #hub-map .hub-point[data-hub="rostov"] .hub-label,
+  #hub-map .hub-point[data-hub="volgograd"] .hub-label,
+  #hub-map .hub-point[data-hub="melitopol"] .hub-label,
+  #hub-map .hub-point[data-hub="crimea"] .hub-label,
+  #hub-map .hub-point[data-hub="makhachkala"] .hub-label,
+  #hub-map .hub-point[data-hub="mariupol"] .hub-label { font-size: 15px; }
+  #hub-map .hub-point[data-hub="rostov"] .hub-label { transform: translate(0,3px); }
+  #hub-map .hub-point[data-hub="volgograd"] .hub-label { transform: translate(0,4px); }
+  #hub-map .hub-point[data-hub="melitopol"] .hub-label { transform: translate(0,-3px); }
+  #hub-map .hub-point[data-hub="crimea"] .hub-label { transform: translate(50px,-3px); }
+  #hub-map .hub-point[data-hub="makhachkala"] .hub-label { transform: translate(5px,10px); }
+  #hub-map .hub-point[data-hub="mariupol"] .hub-label { transform: translate(25px,15px); }
 }
 
 /* =========================================================================
