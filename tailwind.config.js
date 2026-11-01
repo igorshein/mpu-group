@@ -163,7 +163,7 @@ module.exports = {
           }
         ],
         "display-hero-mobile": [
-          "34px",
+          "clamp(28px, 8.2vw, 34px)",
           {
             "lineHeight": "42px",
             "letterSpacing": "-0.01em",
