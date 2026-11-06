@@ -145,7 +145,7 @@
 /* ------------------------------------------- */
 
 (function(){
-  var EMAIL = 'info@mpugroup.ru';
+  var EMAIL = '{{CONTACT_EMAIL}}';
   var PHP_ENDPOINT = 'api/send-request.php';
   var form = document.getElementById('rfq-form');
   if(!form) return;
@@ -164,7 +164,7 @@
                'Телефон / корпоративный e-mail: ' + data.contact + '\n' +
                'Категория продукции: ' + (data.category || '—') + '\n' +
                'Спецификация или ТЗ: ' + data.spec + '\n\n' +
-               'Заявка отправлена с сайта mpu-group.ru';
+               'Заявка отправлена с сайта ' + (window.location.hostname || 'mpu-group.ru');
     window.location.href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
   }
   agree.addEventListener('change', syncSubmit);

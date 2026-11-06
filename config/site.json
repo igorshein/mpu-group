@@ -2,6 +2,7 @@
   "domain": "mpugroup.ru",
   "wwwDomain": "www.mpugroup.ru",
   "recipientEmail": "info@mpugroup.ru",
+  "contactEmail": "info@mpugroup.ru",
   "mailFrom": "no-reply@mpugroup.ru",
   "extraOrigins": [
     "https://igorshein.github.io"

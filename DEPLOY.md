@@ -2,6 +2,21 @@
 
 Статический лендинг + обработчик формы на PHP. Сборка через Tailwind CLI, без фреймворков.
 
+## Два сайта из одного репозитория
+
+| | Основной (`mpugroup.ru`) | Второй (`mpu-group.ru`) |
+|---|---|---|
+| Конфиг | `config/site.json` | `config/site.regru.json` |
+| Сборка | `npm run build` → `docs/` + `api/` | `npm run build:regru` → `docs-regru/` + `api-regru/` |
+| Архив | `npm run package` → `mpu-group-site.zip` | `npm run package:regru` → `mpu-group-site-regru.zip` |
+| Хостинг | Beget | reg.ru (сервер `server193.hosting.reg.ru`) |
+| Заявки на | `info@mpugroup.ru` | `info@mpu-group.ru` |
+
+Сборщик берёт домен, адрес получателя и `MAIL_FROM` из выбранного конфига
+и подставляет их в canonical/og-теги, `robots.txt`, `sitemap.xml`, PHP-обработчик
+и в публичный e-mail шапки/футера (плейсхолдер `{{CONTACT_EMAIL}}` в `src/`).
+`.htaccess` — общий для обоих сайтов: все редиректы доменно-независимые (`%{HTTP_HOST}`).
+
 ---
 
 ## Структура репозитория
@@ -284,5 +299,37 @@ Beget обычно разрешает `mail()`, но письма уходят �
 - [ ] в консоли браузера нет ошибок 404 (F12 → Network)
 - [ ] `robots.txt` на основном домене разрешает индексацию
 - [ ] в `canonical` и `og:url` — ваш домен (после пересборки с новым config)
+
+---
+
+# Второй сайт на reg.ru (mpu-group.ru) — memo по деплою
+
+## Деплой выполнен 06.11.2026
+
+- Домен `mpu-group.ru` (reg.ru), NS: `ns1/ns2.hosting.reg.ru`.
+- Хостинг: тариф «Хост-0» (u3711676), сервер `server193.hosting.reg.ru`, IP `31.31.196.172`.
+- Корень сайта: `www/mpu-group.ru/` (FTP: `ftp://31.31.196.172`, логин `u3711676`).
+- Панель ispmanager: https://server193.hosting.reg.ru:1500/ (u3711676).
+- Обновление сайта: `npm run build:regru && npm run package:regru` → загрузить
+  `mpu-group-site-regru.zip` по FTP в `www/mpu-group.ru/`, распаковать в панели
+  (ispmanager → Менеджер файлов → «Распаковать») и удалить архив. По FTP zip
+  не распаковывается — либо панель, либо временный `unzip.php`.
+- SSL: Let's Encrypt выпущен из ispmanager («SSL-сертификаты» → «Добавить сертификат»
+  → тип Let's Encrypt). Продление автоматическое.
+- Почта: ящик `info@mpu-group.ru` создан в ispmanager → «Почта»; почтовый домен
+  создан с DKIM и DMARC. SPF и MX добавлены автоматически; DKIM/DMARC TXT
+  опубликованы в DNS.
+- Заявки: `POST https://mpu-group.ru/api/send-request.php` → `info@mpu-group.ru`
+  (проверено тестовым письмом в Roundcube 06.11.2026).
+
+## Проверка после очередного обновления второй версии
+
+```
+http://mpu-group.ru/              -> 301 на https
+https://mpu-group.ru/             -> 200, главная
+https://www.mpu-group.ru/         -> 200
+GET  /api/send-request.php        -> JSON «Метод не поддерживается»
+POST тестовой заявки              -> ok:true, письмо в info@mpu-group.ru
+```
 
 ---

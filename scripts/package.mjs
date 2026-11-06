@@ -13,11 +13,22 @@ import { execSync } from 'child_process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
-const OUT = path.join(ROOT, 'dist');
-const ZIP = path.join(ROOT, 'mpu-group-site.zip');
 
-if (!fs.existsSync(path.join(ROOT, 'docs/index.html'))) {
-  console.error('Сначала соберите сайт: npm run build');
+/* Опционально: node scripts/package.mjs --docs=docs-regru --api=api-regru --zip=mpu-group-site-regru.zip
+   (вторая версия сайта — для другого домена/хостинга; по умолчанию всё как раньше) */
+const cliArgs = process.argv.slice(2);
+const cliVal = name => {
+  const hit = cliArgs.find(a => a.startsWith('--' + name + '='));
+  return hit ? hit.slice(name.length + 3) : null;
+};
+const SRC_DOCS = cliVal('docs') || 'docs';
+const SRC_API  = cliVal('api') || 'api';
+const ZIP_NAME = cliVal('zip') || 'mpu-group-site.zip';
+const OUT = path.join(ROOT, 'dist');
+const ZIP = path.join(ROOT, ZIP_NAME);
+
+if (!fs.existsSync(path.join(ROOT, SRC_DOCS, 'index.html'))) {
+  console.error(`Сначала соберите сайт: node build.mjs --out=${SRC_DOCS}`);
   process.exit(1);
 }
 
@@ -25,11 +36,11 @@ if (!fs.existsSync(path.join(ROOT, 'docs/index.html'))) {
 fs.rmSync(OUT, {recursive: true, force: true});
 fs.mkdirSync(OUT, {recursive: true});
 
-// 1. содержимое docs/ → корень сайта
-fs.cpSync(path.join(ROOT, 'docs'), OUT, {recursive: true});
+// 1. содержимое файлов сборки → корень сайта
+fs.cpSync(path.join(ROOT, SRC_DOCS), OUT, {recursive: true});
 // robots.txt: на основном хостинге оставляем, если индексация разрешена
 // (файл с Allow + Sitemap нужен поисковикам на проде)
-const siteConfigPkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/site.json'), 'utf8'));
+const siteConfigPkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', cliVal('config') || 'site.json'), 'utf8'));
 if (!siteConfigPkg.allowIndexing) {
   const robots = path.join(OUT, 'robots.txt');
   if (fs.existsSync(robots)) fs.rmSync(robots);
@@ -46,7 +57,7 @@ if (fs.existsSync(htaccess)) {
 }
 
 // 2. api/ рядом
-fs.cpSync(path.join(ROOT, 'api'), path.join(OUT, 'api'), {recursive: true});
+fs.cpSync(path.join(ROOT, SRC_API), path.join(OUT, 'api'), {recursive: true});
 
 console.log('staging:');
 const walk = (dir, prefix = '') => {

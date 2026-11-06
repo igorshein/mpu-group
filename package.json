@@ -9,7 +9,9 @@
     "watch:css": "tailwindcss -i src/styles.css -o docs/assets/css/site.css --watch",
     "dev": "node build.mjs && node scripts/dev-server.mjs",
     "deploy": "node build.mjs && git add src docs api build.mjs tailwind.config.js package.json package-lock.json scripts DEPLOY.md .gitignore && git commit -m \"build: regenerate site\" && git push origin master",
-    "package": "node scripts/package.mjs"
+    "package": "node scripts/package.mjs",
+    "build:regru": "node build.mjs --config=site.regru.json --out=docs-regru --api=api-regru",
+    "package:regru": "node scripts/package.mjs --config=site.regru.json --docs=docs-regru --api=api-regru --zip=mpu-group-site-regru.zip"
   },
   "devDependencies": {
     "tailwindcss": "3.4.17"

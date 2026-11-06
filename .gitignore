@@ -4,6 +4,10 @@ dist/
 .DS_Store
 *.log
 
+# вторая сборка (для reg.ru / mpu-group.ru) — создаётся build:regru
+docs-regru/
+api-regru/
+
 # Документы-исходники контента (Word блокирует файлы и в коммит они не нужны)
 *.docx
 *.doc

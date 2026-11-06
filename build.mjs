@@ -18,11 +18,25 @@ import { categories } from './src/data/catalog.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.join(__dirname, 'src');
-const OUT = path.join(__dirname, 'docs');
 
 /* ------------------------------------------------------------------ конфиг */
-const siteConfig = JSON.parse(fs.readFileSync(path.join(__dirname, 'config/site.json'), 'utf8'));
+/* Опционально: node build.mjs --config=site.regru.json --out=docs-regru --api=api-regru
+   (вторая версия сайта — для другого домена/хостинга; по умолчанию всё как раньше) */
+const cliArgs = process.argv.slice(2);
+const cliVal = name => {
+  const hit = cliArgs.find(a => a === '--' + name || a.startsWith('--' + name + '='));
+  if (!hit) return null;
+  return hit.startsWith('--' + name + '=') ? hit.slice(name.length + 3) : true;
+};
+const cfgName = (cliVal('config') && cliVal('config') !== true) ? String(cliVal('config')) : 'site.json';
+const OUT_NAME = (cliVal('out') && cliVal('out') !== true) ? String(cliVal('out')) : 'docs';
+const API_DIR  = (cliVal('api') && cliVal('api') !== true) ? String(cliVal('api')) : 'api';
+const OUT = path.join(__dirname, OUT_NAME);
+
+const siteConfig = JSON.parse(fs.readFileSync(path.join(__dirname, 'config', cfgName), 'utf8'));
 const SITE_URL = 'https://' + siteConfig.domain;
+// публичный e-mail для шапки/футера/формы (может отличаться от адреса получателя заявок)
+const contactEmail = siteConfig.contactEmail || siteConfig.recipientEmail;
 const origins = [
   'https://' + siteConfig.domain,
   'https://' + siteConfig.wwwDomain,
@@ -77,6 +91,7 @@ let html = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8');
 
 // домен и канонический URL берём из config/site.json
 html = html.replace(/https:\/\/mpu-group\.ru\//g, SITE_URL + '/');
+html = html.replaceAll('{{CONTACT_EMAIL}}', contactEmail);
 html = html.replace(/<meta content="noindex, follow" name="robots"\/>/, siteConfig.allowIndexing ? '' : '<meta content="noindex, follow" name="robots"/>');
 
 if (!html.includes('<!--MAP_SVG-->')) throw new Error('в шаблоне нет плейсхолдера <!--MAP_SVG-->');
@@ -100,6 +115,14 @@ copy(path.join(SRC, 'assets/img'), path.join(OUT, 'assets/img'));
 copy(path.join(SRC, 'assets/js'), path.join(OUT, 'assets/js'));
 // favicon.svg пользователя — в корень сайта
 copy(path.join(SRC, 'assets/favicon.svg'), path.join(OUT, 'favicon.svg'));
+// в site.js подставляем контактный e-mail из конфига (плейсхолдер {{CONTACT_EMAIL}})
+{
+  const jsFrom = path.join(SRC, 'assets/js/site.js');
+  if (fs.existsSync(jsFrom)) {
+    const js = fs.readFileSync(jsFrom, 'utf8').replaceAll('{{CONTACT_EMAIL}}', contactEmail);
+    fs.writeFileSync(path.join(OUT, 'assets/js/site.js'), js, 'utf8');
+  }
+}
 console.log('✓ статика (шрифты, картинки, скрипты) на месте');
 
 /* ------------------------------- 4a. cache-busting: версия ассетов в URL */
@@ -117,7 +140,8 @@ const jsV = fs.existsSync(jsFile) ? versionOf(jsFile) : 'dev';
 /* ---------------------------------------------- 3b. страницы каталога */
 /* Хаб /katalog/ + 8 страниц категорий /katalog/<slug>/. Шаблоны в src/pages/,
    данные — src/data/catalog.mjs (порядок 01–08 из «Позиции в карточках.docx»). */
-const shellHtml = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8');
+const shellHtml = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8')
+  .replaceAll('{{CONTACT_EMAIL}}', contactEmail);
 const rawHeader = shellHtml.match(/<header[\s\S]*?<\/header>/)[0];
 const rawFooter = shellHtml.match(/<footer[\s\S]*?<\/footer>/)[0];
 
@@ -247,9 +271,9 @@ const phpOut = phpTpl
   .replace('{{DOMAIN}}', siteConfig.domain)
   .replace('{{MAIL_FROM}}', siteConfig.mailFrom)
   .replace('{{ALLOWED_ORIGINS}}', JSON.stringify(origins).replace(/"/g, "'"));
-fs.mkdirSync(path.join(__dirname, 'api'), {recursive: true});
-fs.writeFileSync(path.join(__dirname, 'api/send-request.php'), phpOut, 'utf8');
-console.log('✓ api/send-request.php — домен', siteConfig.domain, '| получатель', siteConfig.recipientEmail);
+fs.mkdirSync(path.join(__dirname, API_DIR), {recursive: true});
+fs.writeFileSync(path.join(__dirname, API_DIR, 'send-request.php'), phpOut, 'utf8');
+console.log('✓ ' + API_DIR + '/send-request.php — домен', siteConfig.domain, '| получатель', siteConfig.recipientEmail);
 
 /* --------------------------------------------- 4b. robots.txt (временный хостинг) */
 // На GitHub Pages сайт не должен индексироваться (основной домен — mpu-group.ru).
@@ -285,7 +309,8 @@ console.log('✓ docs/sitemap.xml — URL: ' + (sitemap.match(/<loc>/g) || []).l
 /* ------------------------------------------------------ 5. сборка CSS */
 try {
   const bin = path.join(__dirname, 'node_modules', '.bin', process.platform === 'win32' ? 'tailwindcss.cmd' : 'tailwindcss');
-  execSync(`"${bin}" -i src/styles.css -o docs/assets/css/site.css --minify`, {cwd: __dirname, stdio: 'inherit'});
+  const cssOut = path.join(OUT, 'assets/css/site.css');
+  execSync(`"${bin}" -i src/styles.css -o "${cssOut}" --minify`, {cwd: __dirname, stdio: 'inherit'});
   const size = fs.statSync(path.join(OUT, 'assets/css/site.css')).size;
   console.log(`✓ docs/assets/css/site.css — ${(size / 1024).toFixed(1)} КБ`);
 } catch (e) {

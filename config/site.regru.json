@@ -1,0 +1,11 @@
+{
+  "domain": "mpu-group.ru",
+  "wwwDomain": "www.mpu-group.ru",
+  "recipientEmail": "info@mpu-group.ru",
+  "contactEmail": "info@mpu-group.ru",
+  "mailFrom": "no-reply@mpu-group.ru",
+  "extraOrigins": [
+    "https://igorshein.github.io"
+  ],
+  "allowIndexing": true
+}
